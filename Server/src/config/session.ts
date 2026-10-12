@@ -1,35 +1,43 @@
-
 import session from "express-session";
 import MongoStore from "connect-mongo";
 
-const sessionSecret = process.env.SESSION_SECRET;
+export function createSessionMiddleware() {
+  const secret = process.env.SESSION_SECRET;
+  const mongoUrl = process.env.MONGODB_URI;
 
-if (!sessionSecret) {
-  throw new Error("SESSION_SECRET is missing from environment variables");
+  if (!secret) {
+    throw new Error("SESSION_SECRET is missing");
+  }
+
+  if (!mongoUrl) {
+    throw new Error("MONGODB_URI is missing");
+  }
+
+  const isProduction = process.env.NODE_ENV === "production";
+  const sameSite =
+    process.env.SESSION_SAME_SITE === "none" ? "none" : "lax";
+
+  if (sameSite === "none" && !isProduction) {
+    throw new Error("SameSite=None requires HTTPS in this configuration");
+  }
+
+  return session({
+    name: process.env.SESSION_COOKIE_NAME || "sms.sid",
+    secret,
+    resave: false,
+    saveUninitialized: false,
+
+    store: MongoStore.create({
+      mongoUrl,
+      collectionName: "sessions",
+      ttl: 60 * 60 * 24,
+    }),
+
+    cookie: {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite,
+      maxAge: 1000 * 60 * 60 * 24,
+    },
+  });
 }
-
-const mongoUrl = process.env.MONGODB_URI;
-
-if (!mongoUrl) {
-  throw new Error("MONGODB_URI is missing from environment variables");
-}
-
-export const sessionMiddleware = session({
-  name: process.env.SESSION_COOKIE_NAME || "sms.sid",
-  secret: sessionSecret,
-  resave: false,
-  saveUninitialized: false,
-
-  store: MongoStore.create({
-    mongoUrl,
-    collectionName: "sessions",
-    ttl: 60 * 60 * 24,
-  }),
-
-  cookie: {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    maxAge: 1000 * 60 * 60 * 24,
-  },
-});
