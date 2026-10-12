@@ -157,7 +157,7 @@ export async function createStudent(input: CreateStudentBody) {
           email: input.email,
           passwordHash,
           role: "STUDENT",
-          mustChangePassword: true,
+          mustChangePassword: false,
           isActive: true,
         },
       ],
