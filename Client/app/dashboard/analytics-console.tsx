@@ -52,18 +52,18 @@ function ResourceCard({
       ).toLocaleString()} inactive`;
 
   return (
-    <Card className="border-border/70 bg-card/95 shadow-sm">
+    <Card className="min-w-0 border-border/70 bg-card/95 shadow-sm">
       <CardHeader className="flex-row items-start justify-between space-y-0 pb-3">
-        <CardTitle className="text-sm font-medium text-muted-foreground">
+        <CardTitle className="truncate text-sm font-medium text-muted-foreground">
           {label}
         </CardTitle>
-        <span className="rounded-lg border border-border/60 bg-muted p-2 text-muted-foreground">
+        <span className="shrink-0 rounded-lg border border-border/60 bg-muted p-2 text-muted-foreground">
           <Icon className="h-4 w-4" />
         </span>
       </CardHeader>
       <CardContent>
-        <p className="text-3xl font-bold tracking-tight text-foreground">{value}</p>
-        <p className="mt-1 text-xs text-muted-foreground">{subtitle}</p>
+        <p className="truncate text-3xl font-bold tracking-tight text-foreground">{value}</p>
+        <p className="mt-1 truncate text-xs text-muted-foreground">{subtitle}</p>
       </CardContent>
     </Card>
   );
@@ -222,6 +222,15 @@ export function AnalyticsConsole({ isSuper }: { isSuper: boolean }) {
         ? `${summary.enrollments.active} active · ${summary.enrollments.completed} completed · ${summary.enrollments.withdrawn} withdrawn`
         : undefined,
     },
+    ...(isSuper
+      ? [
+          {
+            icon: UserCog,
+            label: "Admins",
+            counts: summary?.admins,
+          },
+        ]
+      : []),
   ];
 
   return (
@@ -236,20 +245,12 @@ export function AnalyticsConsole({ isSuper }: { isSuper: boolean }) {
         </div>
       </section>
 
-      {/* Stats Cards */}
+      {/* Stats Cards Grid - evenly distributed across the space */}
       <section className="w-full">
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-none lg:grid-flow-col lg:auto-cols-fr">
           {cards.map((card) => (
             <ResourceCard key={card.label} {...card} isPending={isPending} />
           ))}
-          {isSuper && (
-            <ResourceCard
-              icon={UserCog}
-              label="Admins"
-              counts={summary?.admins}
-              isPending={isPending}
-            />
-          )}
         </div>
       </section>
 
