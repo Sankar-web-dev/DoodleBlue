@@ -6,7 +6,7 @@ import { LogOut } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { authService } from "@/services/auth.service";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 
 
@@ -22,12 +22,14 @@ export function LogoutButton({
 }: LogoutButtonProps) {
   
   const router = useRouter();
-  
+  const queryClient = useQueryClient();
+
   const logoutMutation = useMutation({
     mutationFn: authService.signOut,
     onSuccess: () => {
+      queryClient.clear();
       toast.success("Logged out successfully");
-      router.push('/landing');
+      router.replace('/login');
       router.refresh();
     },
     onError: (error) => {

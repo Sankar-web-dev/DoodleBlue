@@ -2,6 +2,7 @@ import dotenv from "dotenv";
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
 import User from "../modules/auth/user.model";
+import "../config/dns";
 
 dotenv.config({ path: [".env.local", ".env"] });
 

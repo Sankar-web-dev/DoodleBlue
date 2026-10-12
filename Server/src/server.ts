@@ -1,6 +1,7 @@
 import dotenv from "dotenv";
 import mongoose from "mongoose";
 import { createApp } from "./app";
+import "./config/dns";
 
 dotenv.config({ path: [".env.local", ".env"] });
 
