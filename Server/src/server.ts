@@ -1,55 +1,42 @@
-import express, { Request, Response } from "express";
-import mongoose from "mongoose";
-import cors from "cors";
 import dotenv from "dotenv";
-import { sessionMiddleware } from "./config/session.js";
-
-
+import mongoose from "mongoose";
+import { createApp } from "./app";
 
 dotenv.config({ path: [".env.local", ".env"] });
 
-const app = express();
-app.use(sessionMiddleware);
-app.use(
-  cors({
-    origin: process.env.CLIENT_URL || "http://localhost:3000",
-    credentials: true,
-  })
-);
-
-app.use(express.json());
-
-// Health check route
-app.get("/", (_req: Request, res: Response) => {
-  res.json({
-    success: true,
-    message: "StudentDb API is running!",
-  });
-});
-
-// MongoDB connection and server startup
 async function startServer(): Promise<void> {
   try {
     const mongoUri = process.env.MONGODB_URI;
 
     if (!mongoUri) {
-      throw new Error("MONGODB_URI is missing from environment variables");
+      throw new Error("MONGODB_URI is missing");
     }
 
     await mongoose.connect(mongoUri);
 
-    console.log("MongoDB Atlas connected successfully");
+    const app = createApp();
+    const port = Number(process.env.PORT) || 5000;
 
-    const PORT = Number(process.env.PORT) || 5000;
-
-    app.listen(PORT, () => {
-      console.log(`Server running at http://localhost:${PORT}`);
+    const server = app.listen(port, () => {
+      console.log(`Server running at http://localhost:${port}`);
+      console.log("MongoDB Atlas connected successfully");
     });
-  } catch (error: unknown) {
-    const message =
-      error instanceof Error ? error.message : "Unknown error";
 
-    console.error("Failed to start server:", message);
+    const shutdown = async () => {
+      server.close(async () => {
+        await mongoose.disconnect();
+        process.exit(0);
+      });
+    };
+
+    process.once("SIGINT", shutdown);
+    process.once("SIGTERM", shutdown);
+  } catch (error: unknown) {
+    console.error(
+      "Failed to start server:",
+      error instanceof Error ? error.message : error
+    );
+
     process.exit(1);
   }
 }
