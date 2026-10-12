@@ -32,6 +32,7 @@ import {
   DEPARTMENTS_LIST_KEY,
 } from "@/services/departments.service";
 import { ApiRequestError } from "@/lib/api";
+import { EnrollStudentDialog } from "./enroll-student-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -192,7 +193,7 @@ function CreateStudentCard() {
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4" noValidate>
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="stu-name">Full name</Label>
               <Input
@@ -245,7 +246,7 @@ function CreateStudentCard() {
             </div>
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="stu-dept">Department</Label>
               <div className="relative">
@@ -390,7 +391,13 @@ function CreateStudentCard() {
 
 // ─── students list ────────────────────────────────────────────────────────────
 
-function StudentRow({ student }: { student: Student }) {
+function StudentRow({
+  student,
+  onEnroll,
+}: {
+  student: Student;
+  onEnroll: () => void;
+}) {
   return (
     <div className="flex items-center justify-between rounded-2xl border border-border/60 bg-background/50 px-4 py-3">
       <div className="flex min-w-0 items-center gap-3">
@@ -413,6 +420,16 @@ function StudentRow({ student }: { student: Student }) {
         >
           {student.status === "ACTIVE" ? "Active" : "Inactive"}
         </Badge>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8"
+          onClick={onEnroll}
+          aria-label={`Enroll ${student.fullName} in a course`}
+          title="Enroll in course"
+        >
+          <BookOpen className="h-4 w-4" />
+        </Button>
       </div>
     </div>
   );
@@ -421,6 +438,8 @@ function StudentRow({ student }: { student: Student }) {
 // ─── main console ─────────────────────────────────────────────────────────────
 
 export function StudentsConsole() {
+  const [enrolling, setEnrolling] = useState<Student | null>(null);
+
   const { data, isPending, isError } = useQuery({
     queryKey: STUDENTS_LIST_KEY,
     queryFn: () => studentsService.listStudents({ limit: 50 }),
@@ -451,7 +470,7 @@ export function StudentsConsole() {
       </div>
 
       {/* Stats */}
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         {stats.map(({ icon: Icon, label, value }) => (
           <Card key={label} className="glass-card rounded-3xl">
             <CardContent className="flex items-center gap-4 p-5">
@@ -469,7 +488,7 @@ export function StudentsConsole() {
         ))}
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <CreateStudentCard />
 
         <Card className="glass-card rounded-3xl">
@@ -502,11 +521,22 @@ export function StudentsConsole() {
                 </p>
               </div>
             ) : (
-              students.map((s) => <StudentRow key={s.id} student={s} />)
+              students.map((s) => (
+                <StudentRow
+                  key={s.id}
+                  student={s}
+                  onEnroll={() => setEnrolling(s)}
+                />
+              ))
             )}
           </CardContent>
         </Card>
       </div>
+
+      <EnrollStudentDialog
+        student={enrolling}
+        onClose={() => setEnrolling(null)}
+      />
     </div>
   );
 }

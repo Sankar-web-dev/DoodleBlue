@@ -604,7 +604,7 @@ export function DepartmentsConsole() {
       </div>
 
       {/* Stats */}
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         {stats.map(({ icon: Icon, label, value }) => (
           <Card key={label} className="glass-card rounded-3xl">
             <CardContent className="flex items-center gap-4 p-5">
@@ -622,7 +622,7 @@ export function DepartmentsConsole() {
         ))}
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <CreateDepartmentCard />
         <DepartmentsCard />
       </div>

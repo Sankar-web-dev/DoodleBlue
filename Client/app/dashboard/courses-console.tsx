@@ -152,7 +152,7 @@ function CreateCourseCard() {
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4" noValidate>
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="course-name">Course name</Label>
               <Input
@@ -620,7 +620,7 @@ function CoursesCard() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
-          <div className="flex gap-2">
+          <div className="flex flex-col gap-2 sm:flex-row">
             <div className="relative flex-1">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
@@ -731,7 +731,7 @@ export function CoursesConsole() {
       </div>
 
       {/* Stats */}
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         {stats.map(({ icon: Icon, label, value }) => (
           <Card key={label} className="glass-card rounded-3xl">
             <CardContent className="flex items-center gap-4 p-5">
@@ -749,7 +749,7 @@ export function CoursesConsole() {
         ))}
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <CreateCourseCard />
         <CoursesCard />
       </div>
