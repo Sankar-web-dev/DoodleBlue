@@ -5,6 +5,8 @@ import { createSessionMiddleware } from "./config/session";
 import authRoutes from "./modules/auth/auth.routes";
 import studentRoutes from "./modules/student/student.routes";
 import departmentRoutes from "./modules/department/department.routes";
+import courseRoutes from "./modules/course/course.routes";
+import enrollmentRoutes from "./modules/enrollment/enrollment.routes";
 import { ApiError } from "./lib/ApiError";
 
 export function createApp() {
@@ -43,6 +45,8 @@ export function createApp() {
   app.use("/api/v1/auth", authRoutes);
   app.use("/api/v1/students", studentRoutes);
   app.use("/api/v1/departments", departmentRoutes);
+  app.use("/api/v1/courses", courseRoutes);
+  app.use("/api/v1/enrollments", enrollmentRoutes);
 
   const errorHandler: ErrorRequestHandler = (
     error,
