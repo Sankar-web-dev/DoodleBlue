@@ -29,6 +29,7 @@ import {
   SidebarMenuItem,
   SidebarProvider,
   SidebarTrigger,
+  SidebarRail,
 } from "@/components/ui/sidebar";
 import { AdminConsole } from "./admin-console";
 import { StudentsConsole } from "./students-console";
@@ -78,25 +79,28 @@ export function ConsoleShell({ user }: { user: AuthUser }) {
 
   return (
     <SidebarProvider>
-      <Sidebar>
-        <SidebarHeader className="px-4 py-5">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-md shadow-primary/25">
+      <Sidebar collapsible="icon">
+        <SidebarHeader className="px-4 py-5 group-data-[collapsible=icon]:p-2">
+          <div className="flex items-center gap-3 group-data-[collapsible=icon]:justify-center">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-md shadow-primary/25">
               <GraduationCap className="h-5 w-5" />
             </div>
-            <span className="text-lg font-bold tracking-tight">
+            <span className="text-lg font-bold tracking-tight group-data-[collapsible=icon]:hidden">
               CampusLMS
             </span>
           </div>
         </SidebarHeader>
         <SidebarContent>
           <SidebarGroup>
-            <SidebarGroupLabel>Manage</SidebarGroupLabel>
+            <SidebarGroupLabel className="group-data-[collapsible=icon]:hidden">
+              Manage
+            </SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
                 {items.map((item) => (
                   <SidebarMenuItem key={item.id}>
                     <SidebarMenuButton
+                      tooltip={item.label}
                       isActive={section === item.id}
                       onClick={() => setSection(item.id)}
                       className="h-10 data-[active=true]:bg-primary/10 data-[active=true]:text-primary data-[active=true]:font-semibold"
@@ -114,53 +118,51 @@ export function ConsoleShell({ user }: { user: AuthUser }) {
             </SidebarGroupContent>
           </SidebarGroup>
         </SidebarContent>
-        <SidebarFooter className="mt-auto border-t border-sidebar-border px-4 py-4">
-          <div className="mb-2 flex items-center gap-3 rounded-xl border border-sidebar-border/60 bg-sidebar-accent/40 px-3 py-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/20 text-primary border border-primary/30 text-sm font-bold">
+        <SidebarFooter className="mt-auto border-t border-sidebar-border px-4 py-4 group-data-[collapsible=icon]:p-2">
+          <div className="mb-2 flex items-center gap-3 rounded-xl border border-sidebar-border/60 bg-sidebar-accent/40 px-3 py-3 group-data-[collapsible=icon]:p-1.5 group-data-[collapsible=icon]:justify-center">
+            <div
+              title={user.name}
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-primary/30 bg-primary/20 text-sm font-bold text-primary"
+            >
               {initials(user.name)}
             </div>
-            <div className="min-w-0">
+            <div className="min-w-0 group-data-[collapsible=icon]:hidden">
               <p className="truncate text-sm font-semibold">{user.name}</p>
               <p className="truncate text-xs text-muted-foreground">
                 {user.email}
               </p>
             </div>
           </div>
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-2 group-data-[collapsible=icon]:items-center">
             <Badge
               className={
                 isSuper
-                  ? "border-transparent bg-primary text-primary-foreground shadow-sm shadow-primary/25"
-                  : "border-border bg-secondary text-secondary-foreground"
+                  ? "border-transparent bg-primary text-primary-foreground shadow-sm shadow-primary/25 group-data-[collapsible=icon]:p-1.5"
+                  : "border-border bg-secondary text-secondary-foreground group-data-[collapsible=icon]:p-1.5"
               }
             >
               <RoleIcon className="h-3.5 w-3.5" />
-              {ROLE_LABELS[user.role]}
+              <span className="group-data-[collapsible=icon]:hidden">
+                {ROLE_LABELS[user.role]}
+              </span>
             </Badge>
             <LogoutButton
               showIcon
-              className="w-full justify-start"
+              title="Log out"
+              className="w-full justify-start group-data-[collapsible=icon]:h-8 group-data-[collapsible=icon]:w-8 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-0 [&>span]:group-data-[collapsible=icon]:hidden [&>svg]:group-data-[collapsible=icon]:mr-0"
               variant="outline"
               size="sm"
             />
           </div>
         </SidebarFooter>
+        <SidebarRail />
       </Sidebar>
 
       <SidebarInset className="min-w-0 overflow-x-hidden bg-ambient-mesh">
         <header className="sticky top-0 z-10 flex items-center justify-between border-b border-border/60 bg-card/60 px-4 py-4 backdrop-blur sm:px-6">
           <div className="flex items-center gap-3">
             <SidebarTrigger />
-            {activeItem && (
-              <span className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground">
-                {isFetching > 0 ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <activeItem.icon className="h-4 w-4" />
-                )}
-                {activeItem.label}
-              </span>
-            )}
+           
           </div>
         </header>
 

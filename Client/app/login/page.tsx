@@ -97,9 +97,9 @@ export default function LoginPage() {
 
       {/* Right form panel */}
       <div className="flex min-h-screen items-center justify-center px-4 py-10 sm:px-8">
-        <div className="glass-card w-full max-w-md rounded-3xl p-8 sm:p-10 border border-border/80">
+        <div className="w-full max-w-md rounded-3xl border border-border/80 bg-card/95 p-8 shadow-md backdrop-blur sm:p-10">
           <div className="mb-8 flex flex-col items-center text-center">
-            <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-lg shadow-primary/30">
+            <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-lg shadow-primary/10">
               <GraduationCap className="h-7 w-7" />
             </div>
             <h2 className="text-2xl font-bold tracking-tight">
