@@ -9,6 +9,7 @@ import courseRoutes from "./modules/course/course.routes";
 import enrollmentRoutes from "./modules/enrollment/enrollment.routes";
 import attendanceRoutes from "./modules/attendance/attendance.routes";
 import meRoutes from "./modules/me/me.routes";
+import adminRoutes from "./modules/admin/admin.routes";
 import { ApiError } from "./lib/ApiError";
 
 export function createApp() {
@@ -51,6 +52,7 @@ export function createApp() {
   app.use("/api/v1/enrollments", enrollmentRoutes);
   app.use("/api/v1/attendance", attendanceRoutes);
   app.use("/api/v1/me", meRoutes);
+  app.use("/api/v1/admins", adminRoutes);
 
   const errorHandler: ErrorRequestHandler = (
     error,
