@@ -2,7 +2,7 @@
 
 
 import { Button, type ButtonProps  } from "./button";
-import { LogOut } from "lucide-react";
+import { Loader2, LogOut } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { authService } from "@/services/auth.service";
@@ -50,8 +50,12 @@ export function LogoutButton({
       className={cn(className, "w-full")}
       {...props}
     >
-      {showIcon && <LogOut className="mr-2 h-4 w-4" />}
-      <span>Log out</span>
+      {logoutMutation.isPending ? (
+        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+      ) : (
+        showIcon && <LogOut className="mr-2 h-4 w-4" />
+      )}
+      <span>{logoutMutation.isPending ? "Logging out…" : "Log out"}</span>
     </Button>
   );
 }
