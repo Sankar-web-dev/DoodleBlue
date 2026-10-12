@@ -3,6 +3,8 @@ import cors from "cors";
 import helmet from "helmet";
 import { createSessionMiddleware } from "./config/session";
 import authRoutes from "./modules/auth/auth.routes";
+import studentRoutes from "./modules/student/student.routes";
+import { ApiError } from "./lib/ApiError";
 
 export function createApp() {
   const app = express();
@@ -38,6 +40,7 @@ export function createApp() {
   });
 
   app.use("/api/v1/auth", authRoutes);
+  app.use("/api/v1/students", studentRoutes);
 
   const errorHandler: ErrorRequestHandler = (
     error,
@@ -45,6 +48,34 @@ export function createApp() {
     res,
     _next
   ) => {
+    if (error instanceof ApiError) {
+      res.status(error.statusCode).json({
+        success: false,
+        error: {
+          code: error.code,
+          message: error.message,
+          ...(error.details ? { details: error.details } : {}),
+        },
+      });
+      return;
+    }
+
+    // MongoDB duplicate-key (unique index violation) → 409
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      (error as { code?: number }).code === 11000
+    ) {
+      res.status(409).json({
+        success: false,
+        error: {
+          code: "CONFLICT",
+          message: "A record with this value already exists",
+        },
+      });
+      return;
+    }
+
     console.error("API error:", error);
 
     res.status(500).json({
