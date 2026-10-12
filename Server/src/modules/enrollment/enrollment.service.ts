@@ -2,7 +2,6 @@ import mongoose from "mongoose";
 import Enrollment from "./enrollment.model";
 import Student from "../student/student.model";
 import Course from "../course/course.model";
-import Attendance from "../attendance/attendance.model";
 import { ApiError } from "../../lib/ApiError";
 import type {
   CreateEnrollmentBody,
@@ -10,50 +9,57 @@ import type {
   ListEnrollmentsQuery,
 } from "./enrollment.validation";
 
-// ─── Lean document shapes ─────────────────────────────────────────────────────
+// ─── Populated document shape ─────────────────────────────────────────────────
 
 interface StudentRef {
   _id: mongoose.Types.ObjectId;
-  studentNumber: string;
   fullName: string;
-  status: string;
+  studentNumber: string;
 }
 
 interface CourseRef {
   _id: mongoose.Types.ObjectId;
   name: string;
   code: string;
-  isActive: boolean;
 }
 
 interface PopulatedEnrollment {
   _id: mongoose.Types.ObjectId;
-  studentId: StudentRef;
-  courseId: CourseRef;
+  studentId: mongoose.Types.ObjectId | StudentRef;
+  courseId: mongoose.Types.ObjectId | CourseRef;
   enrolledAt: Date;
   status: string;
   createdAt: Date;
   updatedAt: Date;
 }
 
-/** Safe enrollment payload — student/course resolved via populate. */
+/** Safe enrollment payload with student and course summaries. */
 function toResponse(doc: PopulatedEnrollment) {
+  const student = doc.studentId as StudentRef | mongoose.Types.ObjectId;
+  const course = doc.courseId as CourseRef | mongoose.Types.ObjectId;
+  const populatedStudent =
+    student instanceof mongoose.Types.ObjectId ? null : student;
+  const populatedCourse =
+    course instanceof mongoose.Types.ObjectId ? null : course;
+
   return {
     id: doc._id.toString(),
-    student: {
-      id: doc.studentId._id.toString(),
-      studentNumber: doc.studentId.studentNumber,
-      fullName: doc.studentId.fullName,
-      status: doc.studentId.status,
-    },
-    course: {
-      id: doc.courseId._id.toString(),
-      name: doc.courseId.name,
-      code: doc.courseId.code,
-      isActive: doc.courseId.isActive,
-    },
-    enrolledAt: doc.enrolledAt,
+    student: populatedStudent
+      ? {
+          id: populatedStudent._id.toString(),
+          fullName: populatedStudent.fullName,
+          studentNumber: populatedStudent.studentNumber,
+        }
+      : { id: student.toString() },
+    course: populatedCourse
+      ? {
+          id: populatedCourse._id.toString(),
+          name: populatedCourse.name,
+          code: populatedCourse.code,
+        }
+      : { id: course.toString() },
     status: doc.status,
+    enrolledAt: doc.enrolledAt,
     createdAt: doc.createdAt,
     updatedAt: doc.updatedAt,
   };
@@ -61,8 +67,8 @@ function toResponse(doc: PopulatedEnrollment) {
 
 async function fetchPopulated(id: string | mongoose.Types.ObjectId) {
   const doc = await Enrollment.findById(id)
-    .populate("studentId", "studentNumber fullName status")
-    .populate("courseId", "name code isActive")
+    .populate("studentId", "fullName studentNumber")
+    .populate("courseId", "name code")
     .lean();
 
   if (!doc) {
@@ -72,13 +78,12 @@ async function fetchPopulated(id: string | mongoose.Types.ObjectId) {
   return toResponse(doc as unknown as PopulatedEnrollment);
 }
 
-// ─── createEnrollment ─────────────────────────────────────────────────────────
+// ─── enrollStudent ────────────────────────────────────────────────────────────
 
-export async function createEnrollment(input: CreateEnrollmentBody) {
-  // Both references must point at real, active records.
+export async function enrollStudent(input: CreateEnrollmentBody) {
   const [student, course] = await Promise.all([
-    Student.findById(input.studentId).select("status").lean(),
-    Course.findById(input.courseId).select("isActive").lean(),
+    Student.findById(input.studentId).lean(),
+    Course.findById(input.courseId).lean(),
   ]);
 
   if (!student) {
@@ -86,22 +91,31 @@ export async function createEnrollment(input: CreateEnrollmentBody) {
   }
   if (student.status !== "ACTIVE") {
     throw new ApiError(
-      400,
+      409,
       "STUDENT_INACTIVE",
       "Only active students can be enrolled"
     );
   }
-
   if (!course) {
     throw new ApiError(404, "COURSE_NOT_FOUND", "Course not found");
   }
   if (!course.isActive) {
-    throw new ApiError(400, "COURSE_INACTIVE", "Course is not active");
+    throw new ApiError(
+      409,
+      "COURSE_INACTIVE",
+      "This course is inactive — activate it before enrolling students"
+    );
   }
 
-  // The compound unique index on (studentId, courseId) means a student can
-  // never hold two enrollment records for the same course — even a WITHDRAWN
-  // one. Surface that as a clear 409 before the insert.
+  // A student may only be mapped to a course inside their own department.
+  if (!course.departmentId.equals(student.departmentId)) {
+    throw new ApiError(
+      409,
+      "COURSE_DEPARTMENT_MISMATCH",
+      "This course belongs to a different department than the student's"
+    );
+  }
+
   const existing = await Enrollment.exists({
     studentId: input.studentId,
     courseId: input.courseId,
@@ -109,8 +123,8 @@ export async function createEnrollment(input: CreateEnrollmentBody) {
   if (existing) {
     throw new ApiError(
       409,
-      "ENROLLMENT_EXISTS",
-      "An enrollment already exists for this student and course"
+      "ALREADY_ENROLLED",
+      "The student is already enrolled in this course"
     );
   }
 
@@ -121,7 +135,7 @@ export async function createEnrollment(input: CreateEnrollmentBody) {
     status: "ACTIVE",
   });
 
-  return fetchPopulated(doc._id as mongoose.Types.ObjectId);
+  return fetchPopulated(doc._id);
 }
 
 // ─── listEnrollments ──────────────────────────────────────────────────────────
@@ -137,9 +151,9 @@ export async function listEnrollments(query: ListEnrollmentsQuery) {
   const [total, docs] = await Promise.all([
     Enrollment.countDocuments(filter),
     Enrollment.find(filter)
-      .populate("studentId", "studentNumber fullName status")
-      .populate("courseId", "name code isActive")
-      .sort({ enrolledAt: -1, _id: -1 })
+      .populate("studentId", "fullName studentNumber")
+      .populate("courseId", "name code")
+      .sort({ createdAt: -1, _id: -1 })
       .skip((page - 1) * limit)
       .limit(limit)
       .lean(),
@@ -162,54 +176,32 @@ export async function getEnrollmentById(id: string) {
   return fetchPopulated(id);
 }
 
-// ─── updateEnrollment ─────────────────────────────────────────────────────────
+// ─── updateEnrollmentStatus ───────────────────────────────────────────────────
 
-export async function updateEnrollment(
+export async function updateEnrollmentStatus(
   id: string,
   input: UpdateEnrollmentBody
 ) {
+  // Marks the enrollment ACTIVE / COMPLETED / WITHDRAWN — the record is
+  // never physically touched, so attendance history is preserved.
   const doc = await Enrollment.findByIdAndUpdate(
     id,
     { $set: { status: input.status } },
-    { new: true, runValidators: true }
-  )
-    .populate("studentId", "studentNumber fullName status")
-    .populate("courseId", "name code isActive")
-    .lean();
+    { new: true }
+  ).lean();
 
   if (!doc) {
     throw new ApiError(404, "ENROLLMENT_NOT_FOUND", "Enrollment not found");
   }
 
-  return toResponse(doc as unknown as PopulatedEnrollment);
+  return fetchPopulated(id);
 }
 
 // ─── deleteEnrollment ─────────────────────────────────────────────────────────
 
 export async function deleteEnrollment(id: string): Promise<void> {
-  const enrollment = await Enrollment.findById(id)
-    .select("studentId courseId")
-    .lean();
-
-  if (!enrollment) {
+  const deleted = await Enrollment.findByIdAndDelete(id);
+  if (!deleted) {
     throw new ApiError(404, "ENROLLMENT_NOT_FOUND", "Enrollment not found");
   }
-
-  // Attendance history is keyed by (student, course) — deleting an enrollment
-  // that already has attendance records would orphan them. Use WITHDRAWN
-  // status instead in that case.
-  const attendanceCount = await Attendance.countDocuments({
-    studentId: enrollment.studentId,
-    courseId: enrollment.courseId,
-  });
-
-  if (attendanceCount > 0) {
-    throw new ApiError(
-      409,
-      "ENROLLMENT_IN_USE",
-      "This enrollment has attendance records. Set its status to WITHDRAWN instead."
-    );
-  }
-
-  await Enrollment.findByIdAndDelete(id);
 }

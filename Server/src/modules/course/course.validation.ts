@@ -4,31 +4,28 @@ const objectId = z
   .string()
   .regex(/^[0-9a-fA-F]{24}$/, "Invalid id");
 
-const codeSchema = z
-  .string()
-  .trim()
-  .min(2)
-  .max(20)
-  .regex(/^[A-Za-z0-9-]+$/, "Code may only contain letters, numbers and hyphens")
-  .transform((v) => v.toUpperCase());
-
 // POST /api/v1/courses
 export const createCourseSchema = z
   .object({
-    name: z.string().trim().min(2).max(150),
-    code: codeSchema,
-    description: z.string().trim().max(1000).optional(),
+    name: z.string().trim().min(2).max(120),
+    code: z
+      .string()
+      .trim()
+      .min(2)
+      .max(20)
+      .regex(/^[A-Za-z0-9-]+$/, "Code may only contain letters, numbers and hyphens")
+      .transform((v) => v.toUpperCase()),
+    description: z.string().trim().max(500).optional(),
     departmentId: objectId,
   })
   .strict();
 
 // PATCH /api/v1/courses/:id
-// `code` is treated as an immutable identifier — not updatable.
+// `code` and `departmentId` are immutable — neither is updatable here.
 export const updateCourseSchema = z
   .object({
-    name: z.string().trim().min(2).max(150).optional(),
-    description: z.string().trim().max(1000).nullable().optional(),
-    departmentId: objectId.optional(),
+    name: z.string().trim().min(2).max(120).optional(),
+    description: z.string().trim().max(500).nullable().optional(),
     isActive: z.boolean().optional(),
   })
   .strict()
@@ -42,6 +39,7 @@ export const listCoursesQuerySchema = z.object({
   limit: z.coerce.number().int().min(1).max(100).default(20),
   search: z.string().trim().min(1).optional(),
   departmentId: objectId.optional(),
+  // Query params arrive as strings — parse explicitly.
   isActive: z
     .enum(["true", "false"])
     .transform((v) => v === "true")

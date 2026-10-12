@@ -36,7 +36,7 @@ function parseId(req: Request, res: Response): string | null {
 }
 
 // POST /api/v1/enrollments
-export async function createEnrollment(
+export async function enrollStudent(
   req: Request,
   res: Response
 ): Promise<void> {
@@ -46,7 +46,7 @@ export async function createEnrollment(
     return;
   }
 
-  const enrollment = await EnrollmentService.createEnrollment(parsed.data);
+  const enrollment = await EnrollmentService.enrollStudent(parsed.data);
   res.status(201).json({ success: true, data: { enrollment } });
 }
 
@@ -95,7 +95,7 @@ export async function updateEnrollment(
     return;
   }
 
-  const enrollment = await EnrollmentService.updateEnrollment(
+  const enrollment = await EnrollmentService.updateEnrollmentStatus(
     id,
     parsed.data
   );

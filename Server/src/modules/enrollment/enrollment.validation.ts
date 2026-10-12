@@ -5,8 +5,6 @@ const objectId = z
   .string()
   .regex(/^[0-9a-fA-F]{24}$/, "Invalid id");
 
-const statusEnum = z.enum(ENROLLMENT_STATUSES);
-
 // POST /api/v1/enrollments
 export const createEnrollmentSchema = z
   .object({
@@ -16,10 +14,9 @@ export const createEnrollmentSchema = z
   .strict();
 
 // PATCH /api/v1/enrollments/:id
-// Only the enrollment status may change — the student/course pairing is fixed.
 export const updateEnrollmentSchema = z
   .object({
-    status: statusEnum,
+    status: z.enum(ENROLLMENT_STATUSES),
   })
   .strict();
 
@@ -29,7 +26,7 @@ export const listEnrollmentsQuerySchema = z.object({
   limit: z.coerce.number().int().min(1).max(100).default(20),
   studentId: objectId.optional(),
   courseId: objectId.optional(),
-  status: statusEnum.optional(),
+  status: z.enum(ENROLLMENT_STATUSES).optional(),
 });
 
 // :id route param

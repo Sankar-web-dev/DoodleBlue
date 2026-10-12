@@ -2,7 +2,6 @@ import mongoose from "mongoose";
 import Course from "./course.model";
 import Department from "../department/department.model";
 import Enrollment from "../enrollment/enrollment.model";
-import Attendance from "../attendance/attendance.model";
 import { ApiError } from "../../lib/ApiError";
 import type {
   CreateCourseBody,
@@ -10,37 +9,44 @@ import type {
   ListCoursesQuery,
 } from "./course.validation";
 
-// ─── Lean document shapes ─────────────────────────────────────────────────────
+// ─── Lean document shape ──────────────────────────────────────────────────────
 
-interface DepartmentRef {
+interface LeanDepartmentRef {
   _id: mongoose.Types.ObjectId;
   name: string;
   code: string;
 }
 
-interface PopulatedCourse {
+interface LeanCourse {
   _id: mongoose.Types.ObjectId;
   name: string;
   code: string;
   description?: string;
-  departmentId: DepartmentRef;
+  departmentId: mongoose.Types.ObjectId | LeanDepartmentRef;
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
 
-/** Safe course payload — department details resolved via populate. */
-function toResponse(doc: PopulatedCourse) {
+/** Safe course payload with the owning department summarised. */
+function toResponse(doc: LeanCourse) {
+  // departmentId is populated to { _id, name, code } when read; on create it
+  // is a raw ObjectId, so normalise both shapes.
+  const ref = doc.departmentId as LeanDepartmentRef | mongoose.Types.ObjectId;
+  const populated = ref instanceof mongoose.Types.ObjectId ? null : ref;
+
   return {
     id: doc._id.toString(),
     name: doc.name,
     code: doc.code,
     description: doc.description,
-    department: {
-      id: doc.departmentId._id.toString(),
-      name: doc.departmentId.name,
-      code: doc.departmentId.code,
-    },
+    department: populated
+      ? {
+          id: populated._id.toString(),
+          name: populated.name,
+          code: populated.code,
+        }
+      : { id: ref.toString() },
     isActive: doc.isActive,
     createdAt: doc.createdAt,
     updatedAt: doc.updatedAt,
@@ -51,34 +57,20 @@ function escapeRegex(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-async function assertActiveDepartment(departmentId: string): Promise<void> {
-  const department = await Department.findById(departmentId).select("isActive");
-
-  if (!department) {
-    throw new ApiError(400, "DEPARTMENT_NOT_FOUND", "Department not found");
-  }
-  if (!department.isActive) {
-    throw new ApiError(400, "DEPARTMENT_INACTIVE", "Department is not active");
-  }
-}
-
-async function fetchPopulated(id: string | mongoose.Types.ObjectId) {
-  const doc = await Course.findById(id)
-    .populate("departmentId", "name code")
-    .lean();
-
-  if (!doc) {
-    throw new ApiError(404, "COURSE_NOT_FOUND", "Course not found");
-  }
-
-  return toResponse(doc as unknown as PopulatedCourse);
-}
-
 // ─── createCourse ─────────────────────────────────────────────────────────────
 
 export async function createCourse(input: CreateCourseBody) {
-  // A course must belong to an existing, active department.
-  await assertActiveDepartment(input.departmentId);
+  const department = await Department.findById(input.departmentId).lean();
+  if (!department) {
+    throw new ApiError(404, "DEPARTMENT_NOT_FOUND", "Department not found");
+  }
+  if (!department.isActive) {
+    throw new ApiError(
+      409,
+      "DEPARTMENT_INACTIVE",
+      "This department is inactive — activate it before adding courses"
+    );
+  }
 
   const taken = await Course.exists({ code: input.code });
   if (taken) {
@@ -92,12 +84,18 @@ export async function createCourse(input: CreateCourseBody) {
   const doc = await Course.create({
     name: input.name,
     code: input.code,
-    description: input.description,
+    ...(input.description !== undefined
+      ? { description: input.description }
+      : {}),
     departmentId: input.departmentId,
     isActive: true,
   });
 
-  return fetchPopulated(doc._id as mongoose.Types.ObjectId);
+  const created = await Course.findById(doc._id)
+    .populate("departmentId", "name code")
+    .lean();
+
+  return toResponse(created as unknown as LeanCourse);
 }
 
 // ─── listCourses ──────────────────────────────────────────────────────────────
@@ -106,8 +104,8 @@ export async function listCourses(query: ListCoursesQuery) {
   const { page, limit, search, departmentId, isActive } = query;
 
   const filter: Record<string, unknown> = {};
-  if (isActive !== undefined) filter.isActive = isActive;
   if (departmentId) filter.departmentId = departmentId;
+  if (isActive !== undefined) filter.isActive = isActive;
   if (search) {
     const safe = escapeRegex(search);
     filter.$or = [
@@ -127,7 +125,7 @@ export async function listCourses(query: ListCoursesQuery) {
   ]);
 
   return {
-    data: (docs as unknown as PopulatedCourse[]).map(toResponse),
+    data: (docs as unknown as LeanCourse[]).map(toResponse),
     meta: {
       page,
       limit,
@@ -140,21 +138,27 @@ export async function listCourses(query: ListCoursesQuery) {
 // ─── getCourseById ────────────────────────────────────────────────────────────
 
 export async function getCourseById(id: string) {
-  return fetchPopulated(id);
+  const doc = await Course.findById(id)
+    .populate("departmentId", "name code")
+    .lean();
+  if (!doc) {
+    throw new ApiError(404, "COURSE_NOT_FOUND", "Course not found");
+  }
+  return toResponse(doc as unknown as LeanCourse);
 }
 
 // ─── updateCourse ─────────────────────────────────────────────────────────────
 
 export async function updateCourse(id: string, input: UpdateCourseBody) {
-  if (input.departmentId) {
-    await assertActiveDepartment(input.departmentId);
-  }
-
   const set: Record<string, unknown> = {};
-  for (const [key, value] of Object.entries(input)) {
-    if (value !== undefined) set[key] = value;
+  if (input.name !== undefined) set.name = input.name;
+  if (input.isActive !== undefined) set.isActive = input.isActive;
+  if (input.description !== undefined) {
+    set.description = input.description === null ? "" : input.description;
   }
 
+  // Deactivation is a flag flip only — enrollments and attendance keep their
+  // history; new enrollments are rejected by the enrollment service.
   const doc = await Course.findByIdAndUpdate(
     id,
     { $set: set },
@@ -167,7 +171,7 @@ export async function updateCourse(id: string, input: UpdateCourseBody) {
     throw new ApiError(404, "COURSE_NOT_FOUND", "Course not found");
   }
 
-  return toResponse(doc as unknown as PopulatedCourse);
+  return toResponse(doc as unknown as LeanCourse);
 }
 
 // ─── deleteCourse ─────────────────────────────────────────────────────────────
@@ -175,16 +179,13 @@ export async function updateCourse(id: string, input: UpdateCourseBody) {
 export async function deleteCourse(id: string): Promise<void> {
   // A course may only be physically removed when nothing references it.
   // Otherwise the caller should deactivate it, which preserves history.
-  const [enrollmentCount, attendanceCount] = await Promise.all([
-    Enrollment.countDocuments({ courseId: id }),
-    Attendance.countDocuments({ courseId: id }),
-  ]);
+  const enrollmentCount = await Enrollment.countDocuments({ courseId: id });
 
-  if (enrollmentCount > 0 || attendanceCount > 0) {
+  if (enrollmentCount > 0) {
     throw new ApiError(
       409,
       "COURSE_IN_USE",
-      `Course is referenced by ${enrollmentCount} enrollment(s) and ${attendanceCount} attendance record(s). Deactivate it instead.`
+      `Course is referenced by ${enrollmentCount} enrollment(s). Deactivate it instead.`
     );
   }
 

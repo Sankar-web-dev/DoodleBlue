@@ -108,5 +108,7 @@ export async function deleteCourse(
   if (!id) return;
 
   await CourseService.deleteCourse(id);
-  res.status(200).json({ success: true, data: { message: "Course deleted" } });
+  res
+    .status(200)
+    .json({ success: true, data: { message: "Course deleted" } });
 }

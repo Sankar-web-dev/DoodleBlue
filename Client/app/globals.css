@@ -82,7 +82,7 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply overflow-x-hidden bg-background text-foreground;
     font-family: var(--font-geist-sans), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     letter-spacing: -0.01em;
     -webkit-font-smoothing: antialiased;
@@ -128,12 +128,14 @@
 .gradient-text {
   background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #06b6d4 100%);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
 .dark .gradient-text {
   background: linear-gradient(135deg, #818cf8 0%, #c084fc 50%, #38bdf8 100%);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
