@@ -16,12 +16,12 @@ import {
   enrollmentsService,
   ENROLLMENTS_LIST_KEY,
   Enrollment,
-} from "@/services/enrollments.service";
+} from "@/api/enrollments.api";
 import {
   coursesService,
   COURSES_LIST_KEY,
-} from "@/services/courses.service";
-import { Student } from "@/services/students.service";
+} from "@/api/courses.api";
+import { Student } from "@/api/students.api";
 import { ApiRequestError } from "@/lib/api";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";

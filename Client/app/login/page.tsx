@@ -17,7 +17,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 
-import { authService, AUTH_ME_KEY, ROLE_LABELS } from "@/services/auth.service";
+import { authService, AUTH_ME_KEY, ROLE_LABELS } from "@/api/auth.api";
 import { ApiRequestError } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

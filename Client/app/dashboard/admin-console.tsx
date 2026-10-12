@@ -19,7 +19,7 @@ import {
   Crown,
 } from "lucide-react";
 
-import { usersService, USERS_LIST_KEY, ListedUser } from "@/services/users.service";
+import { usersService, USERS_LIST_KEY, ListedUser } from "@/api/users.api";
 import { ApiRequestError } from "@/lib/api";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";

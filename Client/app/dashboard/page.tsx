@@ -12,7 +12,7 @@ import {
   BookOpen,
 } from "lucide-react";
 
-import { authService, AUTH_ME_KEY, ROLE_LABELS, UserRole } from "@/services/auth.service";
+import { authService, AUTH_ME_KEY, ROLE_LABELS, UserRole } from "@/api/auth.api";
 import { ApiRequestError } from "@/lib/api";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";

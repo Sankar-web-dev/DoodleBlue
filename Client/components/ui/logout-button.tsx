@@ -5,7 +5,7 @@ import { Button, type ButtonProps  } from "./button";
 import { Loader2, LogOut } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { authService } from "@/services/auth.service";
+import { authApi } from "@/api/auth.api";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 
@@ -25,7 +25,7 @@ export function LogoutButton({
   const queryClient = useQueryClient();
 
   const logoutMutation = useMutation({
-    mutationFn: authService.signOut,
+    mutationFn: authApi.signOut,
     onSuccess: () => {
       queryClient.clear();
       toast.success("Logged out successfully");

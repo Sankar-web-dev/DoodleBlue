@@ -26,11 +26,11 @@ import {
   studentsService,
   STUDENTS_LIST_KEY,
   Student,
-} from "@/services/students.service";
+} from "@/api/students.api";
 import {
   departmentsService,
   DEPARTMENTS_LIST_KEY,
-} from "@/services/departments.service";
+} from "@/api/departments.api";
 import { ApiRequestError } from "@/lib/api";
 import { EnrollStudentDialog } from "./enroll-student-dialog";
 import { Badge } from "@/components/ui/badge";

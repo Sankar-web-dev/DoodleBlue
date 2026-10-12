@@ -12,7 +12,7 @@ import {
   UserCog,
 } from "lucide-react";
 
-import { AuthUser, ROLE_LABELS } from "@/services/auth.service";
+import { AuthUser, ROLE_LABELS } from "@/api/auth.api";
 import { Badge } from "@/components/ui/badge";
 import { LogoutButton } from "@/components/ui/logout-button";
 import {

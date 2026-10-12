@@ -6,7 +6,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { KeyRound, Loader2, Lock, ShieldAlert } from "lucide-react";
 
-import { authService, AUTH_ME_KEY } from "@/services/auth.service";
+import { authService, AUTH_ME_KEY } from "@/api/auth.api";
 import { ApiRequestError } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

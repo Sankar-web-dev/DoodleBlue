@@ -21,7 +21,7 @@ import {
   departmentsService,
   DEPARTMENTS_LIST_KEY,
   Department,
-} from "@/services/departments.service";
+} from "@/api/departments.api";
 import { ApiRequestError } from "@/lib/api";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";

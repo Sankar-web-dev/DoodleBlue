@@ -23,11 +23,11 @@ import {
   coursesService,
   COURSES_LIST_KEY,
   Course,
-} from "@/services/courses.service";
+} from "@/api/courses.api";
 import {
   departmentsService,
   DEPARTMENTS_LIST_KEY,
-} from "@/services/departments.service";
+} from "@/api/departments.api";
 import { ApiRequestError } from "@/lib/api";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";

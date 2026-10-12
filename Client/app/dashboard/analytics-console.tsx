@@ -16,7 +16,7 @@ import {
   analyticsService,
   ANALYTICS_SUMMARY_KEY,
   AnalyticsSummary,
-} from "@/services/analytics.service";
+} from "@/api/analytics.api";
 import { Badge } from "@/components/ui/badge";
 import { DonutChart } from "@/components/ui/donut-chart";
 import { Skeleton } from "@/components/ui/skeleton";
