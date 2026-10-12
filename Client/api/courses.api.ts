@@ -28,7 +28,7 @@ export interface UpdateCourseInput {
   isActive?: boolean;
 }
 
-interface ListCoursesParams {
+export interface ListCoursesParams {
   search?: string;
   departmentId?: string;
   isActive?: boolean;
@@ -36,19 +36,16 @@ interface ListCoursesParams {
   limit?: number;
 }
 
-export const coursesService = {
-  // SUPER_ADMIN + ADMIN — creates a course under a department. `code` is
-  // normalised to uppercase by the API and must be unique (409 CODE_IN_USE).
+export const coursesApi = {
+  // SUPER_ADMIN + ADMIN — creates a course under a department.
   createCourse: (input: CreateCourseInput) =>
     api.post<{ course: Course }>("/api/v1/courses", input),
 
   // SUPER_ADMIN + ADMIN — rename, edit description and/or activate/deactivate.
-  // `code` and `departmentId` are immutable server-side.
   updateCourse: (id: string, input: UpdateCourseInput) =>
     api.patch<{ course: Course }>(`/api/v1/courses/${id}`, input),
 
-  // SUPER_ADMIN + ADMIN — hard delete; fails with 409 COURSE_IN_USE
-  // while enrollments still reference the course.
+  // SUPER_ADMIN + ADMIN — hard delete.
   deleteCourse: (id: string) =>
     api.delete<{ message: string }>(`/api/v1/courses/${id}`),
 
@@ -69,4 +66,5 @@ export const coursesService = {
   },
 };
 
+export const coursesService = coursesApi;
 export const COURSES_LIST_KEY = ["courses", "list"] as const;

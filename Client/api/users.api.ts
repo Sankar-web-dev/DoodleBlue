@@ -1,5 +1,5 @@
 import { api } from "@/lib/api";
-import { AuthUser, UserRole } from "./auth.service";
+import { AuthUser, UserRole } from "./auth.api";
 
 export interface ListedUser extends AuthUser {
   createdAt: string;
@@ -18,14 +18,14 @@ export interface CreateAdminInput {
   temporaryPassword: string;
 }
 
-interface ListUsersParams {
+export interface ListUsersParams {
   role?: UserRole;
   search?: string;
   page?: number;
   limit?: number;
 }
 
-export const usersService = {
+export const usersApi = {
   // SUPER_ADMIN only — provisions a new ADMIN account.
   createAdmin: (input: CreateAdminInput) =>
     api.post<{ user: ListedUser }>("/api/v1/users", input),
@@ -44,4 +44,5 @@ export const usersService = {
   },
 };
 
+export const usersService = usersApi;
 export const USERS_LIST_KEY = ["users", "list"] as const;

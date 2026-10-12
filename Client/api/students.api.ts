@@ -35,7 +35,7 @@ export interface CreateStudentInput {
   temporaryPassword: string;
 }
 
-interface ListStudentsParams {
+export interface ListStudentsParams {
   search?: string;
   departmentId?: string;
   status?: StudentStatus;
@@ -43,12 +43,10 @@ interface ListStudentsParams {
   limit?: number;
 }
 
-export const studentsService = {
-  // ADMIN only — enrolls a student and creates their login account.
+export const studentsApi = {
   createStudent: (input: CreateStudentInput) =>
     api.post<{ student: Student }>("/api/v1/students", input),
 
-  // ADMIN only — lists students with pagination.
   listStudents: (params: ListStudentsParams = {}) => {
     const qs = new URLSearchParams();
     if (params.search) qs.set("search", params.search);
@@ -63,4 +61,5 @@ export const studentsService = {
   },
 };
 
+export const studentsService = studentsApi;
 export const STUDENTS_LIST_KEY = ["students", "list"] as const;

@@ -1,5 +1,5 @@
 import { api } from "@/lib/api";
-import { Enrollment } from "./enrollments.service";
+import { Enrollment } from "./enrollments.api";
 
 export interface ResourceCounts {
   total: number;
@@ -21,9 +21,10 @@ export interface AnalyticsSummary {
   recentEnrollments: Enrollment[];
 }
 
-export const analyticsService = {
+export const analyticsApi = {
   // SUPER_ADMIN + ADMIN — institution-wide counts and recent activity.
   getSummary: () => api.get<AnalyticsSummary>("/api/v1/analytics/summary"),
 };
 
+export const analyticsService = analyticsApi;
 export const ANALYTICS_SUMMARY_KEY = ["analytics", "summary"] as const;
