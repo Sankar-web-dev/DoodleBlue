@@ -33,40 +33,37 @@ import {
 function ResourceCard({
   icon: Icon,
   label,
-  gradient,
   counts,
   breakdown,
   isPending,
 }: {
-  icon: typeof Building2;
+  icon: React.ComponentType<{ className?: string }>;
   label: string;
-  gradient: string;
   counts?: { total: number; active: number };
   breakdown?: string;
   isPending: boolean;
 }) {
+  const value = isPending ? "–" : (counts?.total ?? 0).toLocaleString();
+  const subtitle = isPending
+    ? "Loading…"
+    : breakdown ??
+      `${(counts?.active ?? 0).toLocaleString()} active · ${(
+        (counts?.total ?? 0) - (counts?.active ?? 0)
+      ).toLocaleString()} inactive`;
+
   return (
-    <Card className="glass-card rounded-3xl">
-      <CardContent className="flex items-center gap-4 p-5">
-        <div
-          className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br text-white shadow-md ${gradient}`}
-        >
-          <Icon className="h-5 w-5" />
-        </div>
-        <div className="min-w-0">
-          <p className="text-2xl font-bold leading-none">
-            {isPending ? "–" : counts?.total ?? 0}
-          </p>
-          <p className="mt-1 text-xs font-medium">{label}</p>
-          <p className="text-xs text-muted-foreground">
-            {isPending
-              ? "Loading…"
-              : breakdown ??
-                `${counts?.active ?? 0} active · ${
-                  (counts?.total ?? 0) - (counts?.active ?? 0)
-                } inactive`}
-          </p>
-        </div>
+    <Card className="border-border/70 bg-card/95 shadow-sm">
+      <CardHeader className="flex-row items-start justify-between space-y-0 pb-3">
+        <CardTitle className="text-sm font-medium text-muted-foreground">
+          {label}
+        </CardTitle>
+        <span className="rounded-lg border border-border/60 bg-muted p-2 text-muted-foreground">
+          <Icon className="h-4 w-4" />
+        </span>
+      </CardHeader>
+      <CardContent>
+        <p className="text-3xl font-bold tracking-tight text-foreground">{value}</p>
+        <p className="mt-1 text-xs text-muted-foreground">{subtitle}</p>
       </CardContent>
     </Card>
   );
@@ -92,7 +89,7 @@ function RecentEnrollmentsCard({
   const recent = summary?.recentEnrollments ?? [];
 
   return (
-    <Card className="glass-card rounded-3xl">
+    <Card className="border-border/70 bg-card/95 shadow-sm">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Activity className="h-5 w-5 text-primary" />
@@ -147,13 +144,13 @@ function RecentEnrollmentsCard({
 // ─── charts row ───────────────────────────────────────────────────────────────
 
 const CHART_COLORS = {
-  active: "#10b981",
-  completed: "#0ea5e9",
-  withdrawn: "#f59e0b",
-  students: "#6366f1",
-  departments: "#10b981",
-  courses: "#06b6d4",
-  enrollments: "#f59e0b",
+  active: "oklch(0.5553 0.1455 48.9975)", // solar primary
+  completed: "oklch(0.6806 0.1423 75.8340)", // dusk amber
+  withdrawn: "oklch(0.4437 0.1613 26.8994)", // destructive
+  students: "oklch(0.5553 0.1455 48.9975)", // solar primary
+  departments: "oklch(0.6806 0.1423 75.8340)", // dusk amber
+  courses: "oklch(0.5538 0.1207 66.4416)", // accent
+  enrollments: "oklch(0.8276 0.0752 74.4400)", // secondary
 };
 
 function ChartCard({
@@ -170,7 +167,7 @@ function ChartCard({
   children: React.ReactNode;
 }) {
   return (
-    <Card className="glass-card rounded-3xl">
+    <Card className="border-border/70 bg-card/95 shadow-sm">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <PieChart className="h-5 w-5 text-primary" />
@@ -205,25 +202,21 @@ export function AnalyticsConsole({ isSuper }: { isSuper: boolean }) {
     {
       icon: GraduationCap,
       label: "Students",
-      gradient: "from-sky-600 to-indigo-600 shadow-indigo-500/25",
       counts: summary?.students,
     },
     {
       icon: Building2,
       label: "Departments",
-      gradient: "from-emerald-600 to-teal-600 shadow-emerald-500/25",
       counts: summary?.departments,
     },
     {
       icon: BookOpen,
       label: "Courses",
-      gradient: "from-cyan-600 to-blue-600 shadow-cyan-500/25",
       counts: summary?.courses,
     },
     {
       icon: ClipboardList,
       label: "Enrollments",
-      gradient: "from-amber-500 to-orange-600 shadow-amber-500/25",
       counts: summary?.enrollments,
       breakdown: summary
         ? `${summary.enrollments.active} active · ${summary.enrollments.completed} completed · ${summary.enrollments.withdrawn} withdrawn`
@@ -232,33 +225,33 @@ export function AnalyticsConsole({ isSuper }: { isSuper: boolean }) {
   ];
 
   return (
-    <div className="space-y-8">
-      {/* Hero */}
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">
-          <span className="gradient-text">Overview</span>
-        </h1>
-        <p className="mt-1 flex items-center gap-1.5 text-muted-foreground">
-          <LayoutDashboard className="h-4 w-4 text-primary" />
-          Institution-wide analytics at a glance.
-        </p>
-      </div>
+    <div className="space-y-6">
+      {/* Header */}
+      <section className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        <div>
+          <h1 className="text-3xl font-bold">Dashboard</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Institution-wide academic metrics and activity overview.
+          </p>
+        </div>
+      </section>
 
-      {/* Stats */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {isSuper && (
-          <ResourceCard
-            icon={UserCog}
-            label="Admins"
-            gradient="from-indigo-600 to-violet-600 shadow-indigo-500/25"
-            counts={summary?.admins}
-            isPending={isPending}
-          />
-        )}
-        {cards.map((card) => (
-          <ResourceCard key={card.label} {...card} isPending={isPending} />
-        ))}
-      </div>
+      {/* Stats Cards */}
+      <section className="w-full">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+          {cards.map((card) => (
+            <ResourceCard key={card.label} {...card} isPending={isPending} />
+          ))}
+          {isSuper && (
+            <ResourceCard
+              icon={UserCog}
+              label="Admins"
+              counts={summary?.admins}
+              isPending={isPending}
+            />
+          )}
+        </div>
+      </section>
 
       {/* Charts */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">

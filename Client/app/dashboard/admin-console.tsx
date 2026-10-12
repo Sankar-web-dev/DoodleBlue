@@ -126,7 +126,7 @@ function CreateAdminCard() {
   };
 
   return (
-    <Card className="glass-card rounded-3xl">
+    <Card className="border-border/70 bg-card/95 shadow-sm">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <UserPlus className="h-5 w-5 text-primary" />
@@ -217,7 +217,7 @@ function CreateAdminCard() {
 
           <Button
             type="submit"
-            className="h-11 w-full bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-500/25 hover:from-indigo-500 hover:to-violet-500"
+            className="h-11 w-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/25 transition-all"
             disabled={createMutation.isPending}
           >
             {createMutation.isPending ? (
@@ -266,7 +266,7 @@ function AdminRow({ admin }: { admin: ListedUser }) {
   return (
     <div className="flex items-center justify-between rounded-2xl border border-border/60 bg-background/50 px-4 py-3">
       <div className="flex min-w-0 items-center gap-3">
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-violet-500 text-sm font-semibold text-white">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/15 text-primary border border-primary/25 text-sm font-bold">
           {initials(admin.name)}
         </div>
         <div className="min-w-0">
@@ -305,41 +305,44 @@ export function AdminConsole() {
   ];
 
   return (
-    <div className="space-y-8">
-      {/* Hero */}
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">
-          <span className="gradient-text">Admin console</span>
-        </h1>
-        <p className="mt-1 flex items-center gap-1.5 text-muted-foreground">
-          <Crown className="h-4 w-4 text-violet-500" />
-          Provision admins, then they manage students.
-        </p>
-      </div>
+    <div className="space-y-6">
+      {/* Header */}
+      <section className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        <div>
+          <h1 className="text-3xl font-bold">Admin Console</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Provision and manage administrator credentials and portal access.
+          </p>
+        </div>
+      </section>
 
-      {/* Stats */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        {stats.map(({ icon: Icon, label, value }) => (
-          <Card key={label} className="glass-card rounded-3xl">
-            <CardContent className="flex items-center gap-4 p-5">
-              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-600 text-white shadow-md shadow-indigo-500/25">
-                <Icon className="h-5 w-5" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold leading-none">
-                  {isPending ? "–" : value}
+      {/* Stats Cards */}
+      <section className="w-full">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+          {stats.map(({ icon: Icon, label, value }) => (
+            <Card key={label} className="border-border/70 bg-card/95 shadow-sm">
+              <CardHeader className="flex-row items-start justify-between space-y-0 pb-3">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  {label}
+                </CardTitle>
+                <span className="rounded-lg border border-border/60 bg-muted p-2 text-muted-foreground">
+                  <Icon className="h-4 w-4" />
+                </span>
+              </CardHeader>
+              <CardContent>
+                <p className="text-3xl font-bold tracking-tight text-foreground">
+                  {isPending ? "–" : value.toLocaleString()}
                 </p>
-                <p className="mt-1 text-xs text-muted-foreground">{label}</p>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </section>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <CreateAdminCard />
 
-        <Card className="glass-card rounded-3xl">
+        <Card className="border-border/70 bg-card/95 shadow-sm">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Users className="h-5 w-5 text-primary" />

@@ -81,11 +81,11 @@ export function ConsoleShell({ user }: { user: AuthUser }) {
       <Sidebar>
         <SidebarHeader className="px-4 py-5">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-600 to-violet-600 text-white">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-md shadow-primary/25">
               <GraduationCap className="h-5 w-5" />
             </div>
-            <span className="text-lg font-semibold tracking-tight">
-              StudentMS
+            <span className="text-lg font-bold tracking-tight">
+              CampusLMS
             </span>
           </div>
         </SidebarHeader>
@@ -99,12 +99,12 @@ export function ConsoleShell({ user }: { user: AuthUser }) {
                     <SidebarMenuButton
                       isActive={section === item.id}
                       onClick={() => setSection(item.id)}
-                      className="h-10"
+                      className="h-10 data-[active=true]:bg-primary/10 data-[active=true]:text-primary data-[active=true]:font-semibold"
                     >
                       {section === item.id && isFetching > 0 ? (
-                        <Loader2 className="animate-spin" />
+                        <Loader2 className="animate-spin text-primary" />
                       ) : (
-                        <item.icon />
+                        <item.icon className={section === item.id ? "text-primary" : ""} />
                       )}
                       <span>{item.label}</span>
                     </SidebarMenuButton>
@@ -116,7 +116,7 @@ export function ConsoleShell({ user }: { user: AuthUser }) {
         </SidebarContent>
         <SidebarFooter className="mt-auto border-t border-sidebar-border px-4 py-4">
           <div className="mb-2 flex items-center gap-3 rounded-xl border border-sidebar-border/60 bg-sidebar-accent/40 px-3 py-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-violet-500 text-sm font-semibold text-white">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/20 text-primary border border-primary/30 text-sm font-bold">
               {initials(user.name)}
             </div>
             <div className="min-w-0">
@@ -130,8 +130,8 @@ export function ConsoleShell({ user }: { user: AuthUser }) {
             <Badge
               className={
                 isSuper
-                  ? "border-transparent bg-violet-600 text-white"
-                  : "border-transparent bg-indigo-600 text-white"
+                  ? "border-transparent bg-primary text-primary-foreground shadow-sm shadow-primary/25"
+                  : "border-border bg-secondary text-secondary-foreground"
               }
             >
               <RoleIcon className="h-3.5 w-3.5" />
@@ -140,7 +140,7 @@ export function ConsoleShell({ user }: { user: AuthUser }) {
             <LogoutButton
               showIcon
               className="w-full justify-start"
-              variant="destructive"
+              variant="outline"
               size="sm"
             />
           </div>
@@ -164,7 +164,7 @@ export function ConsoleShell({ user }: { user: AuthUser }) {
           </div>
         </header>
 
-        <main className="mx-auto w-full max-w-5xl px-4 py-6 sm:px-6 sm:py-10">
+        <main className="flex min-h-[calc(100vh-8rem)] flex-1 flex-col gap-4 p-4 md:gap-8 md:px-5 md:py-2">
           {section === "overview" ? (
             <AnalyticsConsole isSuper={isSuper} />
           ) : section === "admins" ? (

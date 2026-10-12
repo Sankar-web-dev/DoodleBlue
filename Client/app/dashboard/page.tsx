@@ -22,9 +22,9 @@ import { LogoutButton } from "@/components/ui/logout-button";
 import { ConsoleShell } from "./console-shell";
 
 const ROLE_STYLES: Record<UserRole, { badge: string; icon: typeof Crown; label: string }> = {
-  SUPER_ADMIN: { badge: "bg-violet-600 text-white border-transparent", icon: Crown, label: "Super Admin" },
-  ADMIN: { badge: "bg-indigo-600 text-white border-transparent", icon: UserCog, label: "Admin" },
-  STUDENT: { badge: "bg-sky-600 text-white border-transparent", icon: BookOpen, label: "Student" },
+  SUPER_ADMIN: { badge: "bg-primary text-primary-foreground border-transparent shadow-sm shadow-primary/25", icon: Crown, label: "Super Admin" },
+  ADMIN: { badge: "bg-secondary text-secondary-foreground border-border", icon: UserCog, label: "Admin" },
+  STUDENT: { badge: "bg-accent text-accent-foreground border-border/80", icon: BookOpen, label: "Student" },
 };
 
 export default function DashboardPage() {
@@ -101,10 +101,10 @@ export default function DashboardPage() {
       <header className="border-b border-border/60 bg-card/60 backdrop-blur">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-600 to-violet-600 text-white">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-md shadow-primary/25">
               <GraduationCap className="h-5 w-5" />
             </div>
-            <span className="text-lg font-semibold tracking-tight">StudentMS</span>
+            <span className="text-lg font-bold tracking-tight">CampusLMS</span>
           </div>
           <div className="flex items-center gap-3">
             <Badge className={role.badge}>
@@ -116,38 +116,44 @@ export default function DashboardPage() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-5xl px-6 py-10">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold tracking-tight">
-            Welcome, {user.name.split(" ")[0]}
-          </h1>
-          <p className="mt-1 text-muted-foreground">
-            Here&apos;s your account overview.
-          </p>
-        </div>
+      <main className="flex min-h-[calc(100vh-8rem)] flex-1 flex-col gap-4 p-4 md:gap-8 md:px-5 md:py-2">
+        <section className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <h1 className="text-3xl font-bold">Dashboard</h1>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Welcome back, {user.name.split(" ")[0]}. Here&apos;s your student portal overview.
+            </p>
+          </div>
+        </section>
 
-        <Card className="glass-card rounded-3xl">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <ShieldCheck className="h-5 w-5 text-primary" />
-              Signed in account
-            </CardTitle>
-            <CardDescription>
-              Your session is active for 24 hours.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between rounded-2xl border border-border/70 bg-background/50 px-5 py-4">
+        <section className="w-full">
+          <Card className="border-border/70 bg-card/95 shadow-sm">
+            <CardHeader className="flex-row items-start justify-between space-y-0 pb-3">
               <div>
-                <p className="font-semibold">{user.name}</p>
-                <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
-                  <Mail className="h-3.5 w-3.5" />
-                  {user.email}
-                </p>
+                <CardTitle className="text-base font-semibold text-foreground">
+                  Signed-in Student Account
+                </CardTitle>
+                <CardDescription className="text-xs text-muted-foreground">
+                  Your session is active for 24 hours.
+                </CardDescription>
               </div>
-            </div>
-          </CardContent>
-        </Card>
+              <span className="rounded-lg border border-border/60 bg-muted p-2 text-muted-foreground">
+                <ShieldCheck className="h-4 w-4" />
+              </span>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-between rounded-xl border border-border/60 bg-muted/40 p-4">
+                <div>
+                  <p className="font-semibold text-foreground">{user.name}</p>
+                  <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                    <Mail className="h-3.5 w-3.5" />
+                    {user.email}
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </section>
       </main>
     </div>
   );

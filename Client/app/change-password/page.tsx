@@ -61,14 +61,14 @@ export default function ChangePasswordPage() {
     <div className="flex min-h-screen items-center justify-center bg-ambient-mesh px-4">
       <div className="glass-card w-full max-w-md rounded-3xl p-8 sm:p-10">
         <div className="mb-8 flex flex-col items-center text-center">
-          <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-lg shadow-amber-500/25">
+          <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-lg shadow-primary/30">
             <KeyRound className="h-7 w-7" />
           </div>
           <h2 className="text-2xl font-bold tracking-tight">
             <span className="gradient-text">Set a new password</span>
           </h2>
           <p className="mt-1.5 flex items-center gap-1.5 text-sm text-muted-foreground">
-            <ShieldAlert className="h-4 w-4 text-amber-500" />
+            <ShieldAlert className="h-4 w-4 text-primary" />
             Required before you can continue
           </p>
         </div>
@@ -89,7 +89,7 @@ export default function ChangePasswordPage() {
                   id={id}
                   type="password"
                   autoComplete={auto}
-                  className="h-11 rounded-xl pl-10"
+                  className="h-11 rounded-xl pl-10 border-border/70 focus-visible:ring-primary"
                   value={value}
                   onChange={(e) => set(e.target.value)}
                   disabled={changeMutation.isPending}
@@ -112,7 +112,7 @@ export default function ChangePasswordPage() {
           <Button
             type="submit"
             size="lg"
-            className="h-11 w-full bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-500/25 hover:from-indigo-500 hover:to-violet-500"
+            className="h-11 w-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/25 transition-all"
             disabled={changeMutation.isPending}
           >
             {changeMutation.isPending ? (

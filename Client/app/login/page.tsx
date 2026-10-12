@@ -11,10 +11,8 @@ import {
   Eye,
   EyeOff,
   Loader2,
-  ShieldCheck,
-  Users,
-  BookOpen,
   ArrowRight,
+  Image as ImageIcon,
 } from "lucide-react";
 
 import { authService, AUTH_ME_KEY, ROLE_LABELS } from "@/api/auth.api";
@@ -22,24 +20,6 @@ import { ApiRequestError } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-
-const FEATURES = [
-  {
-    icon: ShieldCheck,
-    title: "Secure by design",
-    desc: "Session-based auth with rotating cookies",
-  },
-  {
-    icon: Users,
-    title: "Role-based access",
-    desc: "Super Admin, Admin and Student portals",
-  },
-  {
-    icon: BookOpen,
-    title: "Student management",
-    desc: "Enrol, track and manage in one place",
-  },
-];
 
 export default function LoginPage() {
   const router = useRouter();
@@ -88,61 +68,45 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen w-full bg-ambient-mesh lg:grid lg:grid-cols-2">
-      {/* Left brand panel */}
-      <div className="relative hidden overflow-hidden lg:flex lg:flex-col lg:justify-between bg-gradient-to-br from-indigo-600 via-violet-600 to-blue-600 p-12 text-white">
+      {/* Left panel: Empty UI placeholder for future logo */}
+      <div className="relative hidden items-center justify-center border-r border-border/60 bg-muted/20 p-12 lg:flex">
         <div
           aria-hidden
-          className="absolute inset-0 opacity-20"
+          className="pointer-events-none absolute inset-0 opacity-20"
           style={{
             backgroundImage:
-              "radial-gradient(circle at 20% 30%, rgba(255,255,255,0.35) 0, transparent 35%), radial-gradient(circle at 80% 70%, rgba(255,255,255,0.25) 0, transparent 40%)",
+              "radial-gradient(circle at center, var(--primary) / 0.12 0, transparent 70%)",
           }}
         />
-        <div className="relative flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/15 backdrop-blur">
-            <GraduationCap className="h-6 w-6" />
+
+        {/* Future logo drop placeholder */}
+        <div className="relative flex flex-col items-center justify-center gap-4 rounded-3xl border-2 border-dashed border-border/80 bg-card/40 px-12 py-16 text-center backdrop-blur">
+          <div className="flex h-20 w-20 items-center justify-center rounded-2xl border border-border/70 bg-muted/60 text-muted-foreground shadow-sm">
+            <ImageIcon className="h-10 w-10 text-muted-foreground/60" />
           </div>
-          <span className="text-xl font-semibold tracking-tight">
-            StudentMS
-          </span>
+          <div className="space-y-1">
+            <p className="text-sm font-semibold text-foreground">
+              Logo Placeholder
+            </p>
+            <p className="text-xs text-muted-foreground">
+              Reserved for future logo
+            </p>
+          </div>
         </div>
-
-        <div className="relative space-y-8">
-          <h1 className="max-w-md text-4xl font-bold leading-tight tracking-tight">
-            One portal for your entire campus
-          </h1>
-          <ul className="space-y-5">
-            {FEATURES.map(({ icon: Icon, title, desc }) => (
-              <li key={title} className="flex items-start gap-4">
-                <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/15 backdrop-blur">
-                  <Icon className="h-5 w-5" />
-                </div>
-                <div>
-                  <p className="font-semibold">{title}</p>
-                  <p className="text-sm text-white/70">{desc}</p>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <p className="relative text-sm text-white/60">
-          Secured session sign-in · Role-aware dashboards
-        </p>
       </div>
 
       {/* Right form panel */}
       <div className="flex min-h-screen items-center justify-center px-4 py-10 sm:px-8">
-        <div className="glass-card w-full max-w-md rounded-3xl p-8 sm:p-10">
+        <div className="glass-card w-full max-w-md rounded-3xl p-8 sm:p-10 border border-border/80">
           <div className="mb-8 flex flex-col items-center text-center">
-            <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-500/25">
+            <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-lg shadow-primary/30">
               <GraduationCap className="h-7 w-7" />
             </div>
             <h2 className="text-2xl font-bold tracking-tight">
               <span className="gradient-text">Welcome back</span>
             </h2>
             <p className="mt-1.5 text-sm text-muted-foreground">
-              Sign in to your account to continue
+              Sign in to your LMS account to continue
             </p>
           </div>
 
@@ -156,7 +120,7 @@ export default function LoginPage() {
                   type="email"
                   autoComplete="email"
                   placeholder="you@example.com"
-                  className="h-11 rounded-xl pl-10"
+                  className="h-11 rounded-xl pl-10 border-border/70 focus-visible:ring-primary"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   disabled={loginMutation.isPending}
@@ -173,7 +137,7 @@ export default function LoginPage() {
                   type={showPassword ? "text" : "password"}
                   autoComplete="current-password"
                   placeholder="Enter your password"
-                  className="h-11 rounded-xl pl-10 pr-11"
+                  className="h-11 rounded-xl pl-10 pr-11 border-border/70 focus-visible:ring-primary"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   disabled={loginMutation.isPending}
@@ -202,7 +166,7 @@ export default function LoginPage() {
             <Button
               type="submit"
               size="lg"
-              className="h-11 w-full bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-500/25 transition-all hover:from-indigo-500 hover:to-violet-500 hover:shadow-indigo-500/40"
+              className="h-11 w-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/25 transition-all"
               disabled={loginMutation.isPending}
             >
               {loginMutation.isPending ? (

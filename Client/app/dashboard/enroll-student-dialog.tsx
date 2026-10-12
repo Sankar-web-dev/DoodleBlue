@@ -143,14 +143,14 @@ export function EnrollStudentDialog({
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="rounded-3xl">
+      <DialogContent className="sm:max-w-lg border-border/70 bg-card/95 shadow-sm">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <GraduationCap className="h-5 w-5 text-primary" />
             Enroll {student?.fullName}
           </DialogTitle>
           <DialogDescription className="flex items-center gap-1.5">
-            <Building2 className="h-3.5 w-3.5" />
+            <Building2 className="h-3.5 w-3.5 text-primary" />
             {student?.department.name} ({student?.department.code}) — only this
             department&apos;s courses can be assigned.
           </DialogDescription>
@@ -164,7 +164,7 @@ export function EnrollStudentDialog({
               <BookOpen className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <select
                 id="enroll-course"
-                className="border-input bg-background ring-offset-background focus-visible:ring-ring flex h-11 w-full appearance-none rounded-xl border pl-10 pr-9 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                className="border-input bg-background ring-offset-background focus-visible:ring-primary flex h-11 w-full appearance-none rounded-xl border pl-10 pr-9 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                 value={courseId}
                 onChange={(e) => setCourseId(e.target.value)}
                 disabled={enrollMutation.isPending || coursesPending}
@@ -197,7 +197,7 @@ export function EnrollStudentDialog({
 
           <Button
             type="button"
-            className="h-11 w-full"
+            className="h-11 w-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/25 transition-all"
             onClick={handleEnroll}
             disabled={enrollMutation.isPending || !courseId}
           >
