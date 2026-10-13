@@ -10,7 +10,6 @@ import {
   ShieldCheck,
   UserMinus,
   UserPlus,
-  X,
 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
@@ -174,28 +173,7 @@ export function NotificationSheet() {
                   Recent actions by students &amp; admins
                 </SheetDescription>
               </div>
-              <div className="flex items-center gap-1">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-7 w-7"
-                  aria-label="Refresh notifications"
-                  onClick={() => refetch()}
-                  id="notification-refresh-btn"
-                >
-                  <RefreshCw className="h-3.5 w-3.5" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-7 w-7"
-                  aria-label="Close notifications"
-                  onClick={() => setOpen(false)}
-                  id="notification-close-btn"
-                >
-                  <X className="h-3.5 w-3.5" />
-                </Button>
-              </div>
+              <div className="flex items-center gap-1" />
             </div>
 
             {/* Count pill */}
