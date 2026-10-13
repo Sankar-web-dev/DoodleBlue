@@ -72,17 +72,6 @@ export default function DashboardPage() {
   if (isPending || !data) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-ambient-mesh p-6">
-        <Card className="w-full max-w-md">
-          <CardHeader className="items-center space-y-3">
-            <Skeleton className="h-14 w-14 rounded-2xl" />
-            <Skeleton className="h-6 w-40" />
-            <Skeleton className="h-4 w-56" />
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <Skeleton className="h-10 w-full" />
-            <Skeleton className="h-10 w-full" />
-          </CardContent>
-        </Card>
       </div>
     );
   }
