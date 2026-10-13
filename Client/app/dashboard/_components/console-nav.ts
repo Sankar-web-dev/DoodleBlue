@@ -24,6 +24,7 @@ export function getNavItems(isSuper: boolean): NavItem[] {
     ? [
         { id: "overview", label: "Overview", icon: LayoutDashboard },
         { id: "admins", label: "Admins", icon: UserCog },
+        { id: "students", label: "Students", icon: GraduationCap },
         { id: "departments", label: "Departments", icon: Building2 },
         { id: "courses", label: "Courses", icon: BookOpen },
       ]

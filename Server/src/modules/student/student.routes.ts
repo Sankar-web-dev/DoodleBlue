@@ -2,10 +2,10 @@ import { Router } from "express";
 import { authenticate, authorize } from "../auth/auth.middleware";
 import * as StudentController from "./student.controller";
 
-// ADMIN only — SUPER_ADMIN and STUDENT are intentionally excluded.
+// ADMIN and SUPER_ADMIN — STUDENT is intentionally excluded.
 const router = Router();
 
-router.use(authenticate, authorize("ADMIN"));
+router.use(authenticate, authorize("ADMIN", "SUPER_ADMIN"));
 
 router.post("/", StudentController.createStudent);
 router.get("/", StudentController.listStudents);
