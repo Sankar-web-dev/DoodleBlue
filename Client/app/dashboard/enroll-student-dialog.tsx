@@ -6,7 +6,6 @@ import { toast } from "sonner";
 import {
   BookOpen,
   Building2,
-  ChevronDown,
   GraduationCap,
   Loader2,
   Undo2,
@@ -34,6 +33,13 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const STATUS_VARIANTS: Record<
   Enrollment["status"],
@@ -161,24 +167,28 @@ export function EnrollStudentDialog({
           <div className="space-y-2">
             <Label htmlFor="enroll-course">Course</Label>
             <div className="relative">
-              <BookOpen className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <select
-                id="enroll-course"
-                className="border-input bg-background ring-offset-background focus-visible:ring-primary flex h-11 w-full appearance-none rounded-xl border pl-10 pr-9 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              <BookOpen className="pointer-events-none absolute left-3 top-1/2 z-10 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Select
                 value={courseId}
-                onChange={(e) => setCourseId(e.target.value)}
+                onValueChange={setCourseId}
                 disabled={enrollMutation.isPending || coursesPending}
               >
-                <option value="">
-                  {coursesPending ? "Loading…" : "Select course"}
-                </option>
-                {availableCourses.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name} ({c.code})
-                  </option>
-                ))}
-              </select>
-              <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <SelectTrigger
+                  id="enroll-course"
+                  className="h-11 w-full rounded-xl pl-10"
+                >
+                  <SelectValue
+                    placeholder={coursesPending ? "Loading…" : "Select course"}
+                  />
+                </SelectTrigger>
+                <SelectContent>
+                  {availableCourses.map((c) => (
+                    <SelectItem key={c.id} value={c.id}>
+                      {c.name} ({c.code})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             {!coursesPending && availableCourses.length === 0 && (
               <p className="text-xs text-muted-foreground">
