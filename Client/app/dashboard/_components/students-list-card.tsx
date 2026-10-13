@@ -16,7 +16,8 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import { initials } from "./console-utils";
-import { useDepartments } from "./use-departments";
+import { useDepartments } from "../_hooks/use-departments";
+
 
 const statusOptions = [
   { label: "Active", value: "Active" },

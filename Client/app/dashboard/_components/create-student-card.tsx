@@ -34,14 +34,14 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
-import { useDepartments } from "../_hooks/use-departments";
+import{
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useDepartments } from "./use-departments";
+import { useDepartments } from "../_hooks/use-departments";
 import { generatePassword } from "./console-utils";
 
 function suggestStudentNumber(): string {
