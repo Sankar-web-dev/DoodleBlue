@@ -67,9 +67,9 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen w-full bg-ambient-mesh lg:grid lg:grid-cols-2">
+    <div className="min-h-screen w-full bg-ambient-mesh lg:grid lg:grid-cols-2 bg-[#FFFFF1]">
       {/* Left panel: Empty UI placeholder for future logo */}
-      <div className="relative hidden items-center justify-center border-r border-border/60 bg-muted/20 p-12 lg:flex">
+      <div className="relative hidden items-center justify-center border-r border-border/60 bg-muted/20 lg:flex">
         <div
           aria-hidden
           className="pointer-events-none absolute inset-0 opacity-20"
@@ -78,21 +78,7 @@ export default function LoginPage() {
               "radial-gradient(circle at center, var(--primary) / 0.12 0, transparent 70%)",
           }}
         />
-
-        {/* Future logo drop placeholder */}
-        <div className="relative flex flex-col items-center justify-center gap-4 rounded-3xl border-2 border-dashed border-border/80 bg-card/40 px-12 py-16 text-center backdrop-blur">
-          <div className="flex h-20 w-20 items-center justify-center rounded-2xl border border-border/70 bg-muted/60 text-muted-foreground shadow-sm">
-            <ImageIcon className="h-10 w-10 text-muted-foreground/60" />
-          </div>
-          <div className="space-y-1">
-            <p className="text-sm font-semibold text-foreground">
-              Logo Placeholder
-            </p>
-            <p className="text-xs text-muted-foreground">
-              Reserved for future logo
-            </p>
-          </div>
-        </div>
+        <img src="./login.png" alt="Login Image" className="w-full h-full" />
       </div>
 
       {/* Right form panel */}
