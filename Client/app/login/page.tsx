@@ -67,7 +67,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen w-full bg-ambient-mesh lg:grid lg:grid-cols-2 bg-[#FFFFF1]">
+    <div className="min-h-screen w-full lg:grid lg:grid-cols-2 bg-[#FFFFF1]">
       {/* Left panel: Empty UI placeholder for future logo */}
       <div className="relative hidden items-center justify-center border-r border-border/60 bg-muted/20 lg:flex">
         <div
