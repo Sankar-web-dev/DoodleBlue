@@ -143,7 +143,7 @@ export function EnrollStudentDialog({
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="sm:max-w-lg border-border/70 bg-card/95 shadow-sm">
+      <DialogContent className="sm:max-w-lg border-border/70 bg-card shadow-sm">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <GraduationCap className="h-5 w-5 text-primary" />

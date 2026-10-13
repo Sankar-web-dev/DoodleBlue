@@ -2,24 +2,26 @@
 
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { BookOpen, UserCheck, UserX } from "lucide-react";
+import { BookOpen, UserCheck, UserX, Plus } from "lucide-react";
 
 import {
   studentsService,
   STUDENTS_LIST_KEY,
   Student,
 } from "@/api/students.api";
+import { Button } from "@/components/ui/button";
 import { ConsoleStatsCards } from "./_components/console-stats-cards";
-import { CreateStudentCard } from "./_components/create-student-card";
+import { CreateStudentDialog } from "./_components/create-student-card";
 import { StudentsListCard } from "./_components/students-list-card";
 import { EnrollStudentDialog } from "./enroll-student-dialog";
 
 export function StudentsConsole() {
+  const [creating, setCreating] = useState(false);
   const [enrolling, setEnrolling] = useState<Student | null>(null);
 
   const { data, isPending, isError } = useQuery({
     queryKey: STUDENTS_LIST_KEY,
-    queryFn: () => studentsService.listStudents({ limit: 50 }),
+    queryFn: () => studentsService.listStudents({ limit: 100 }),
   });
 
   const students = data?.data ?? [];
@@ -43,21 +45,26 @@ export function StudentsConsole() {
             Enroll students, map them to academic departments, and manage accounts.
           </p>
         </div>
+        <Button
+          onClick={() => setCreating(true)}
+          className="h-11 rounded-xl bg-primary px-5 text-primary-foreground shadow-lg shadow-primary/25 hover:bg-primary/90"
+        >
+          <Plus className="h-4 w-4" />
+          Enroll student
+        </Button>
       </section>
 
       <ConsoleStatsCards stats={stats} isPending={isPending} />
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <CreateStudentCard />
-        <StudentsListCard
-          students={students}
-          total={total}
-          isPending={isPending}
-          isError={isError}
-          onEnroll={setEnrolling}
-        />
-      </div>
+      <StudentsListCard
+        students={students}
+        total={total}
+        isPending={isPending}
+        isError={isError}
+        onEnroll={setEnrolling}
+      />
 
+      <CreateStudentDialog open={creating} onClose={() => setCreating(false)} />
       <EnrollStudentDialog
         student={enrolling}
         onClose={() => setEnrolling(null)}

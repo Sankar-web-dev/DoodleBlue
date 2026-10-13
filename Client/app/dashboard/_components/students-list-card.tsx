@@ -1,10 +1,12 @@
 "use client";
 
-import { BookOpen, GraduationCap } from "lucide-react";
+import { type ColumnDef } from "@tanstack/react-table";
+import { BookOpen } from "lucide-react";
 
 import { Student } from "@/api/students.api";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import GenericTable from "@/components/generic-table";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Card,
@@ -14,50 +16,12 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import { initials } from "./console-utils";
+import { useDepartments } from "./use-departments";
 
-function StudentRow({
-  student,
-  onEnroll,
-}: {
-  student: Student;
-  onEnroll: () => void;
-}) {
-  return (
-    <div className="flex items-center justify-between rounded-2xl border border-border/60 bg-background/50 px-4 py-3">
-      <div className="flex min-w-0 items-center gap-3">
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/15 text-primary border border-primary/25 text-sm font-bold">
-          {initials(student.fullName)}
-        </div>
-        <div className="min-w-0">
-          <p className="truncate font-medium">{student.fullName}</p>
-          <p className="truncate text-xs text-muted-foreground">
-            {student.studentNumber} · {student.department.name}
-          </p>
-        </div>
-      </div>
-      <div className="ml-3 flex shrink-0 items-center gap-2">
-        <Badge variant="outline" className="hidden sm:inline-flex font-mono">
-          {student.department.code}
-        </Badge>
-        <Badge
-          variant={student.status === "ACTIVE" ? "success" : "secondary"}
-        >
-          {student.status === "ACTIVE" ? "Active" : "Inactive"}
-        </Badge>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-8 w-8"
-          onClick={onEnroll}
-          aria-label={`Enroll ${student.fullName} in a course`}
-          title="Enroll in course"
-        >
-          <BookOpen className="h-4 w-4" />
-        </Button>
-      </div>
-    </div>
-  );
-}
+const statusOptions = [
+  { label: "Active", value: "Active" },
+  { label: "Inactive", value: "Inactive" },
+];
 
 export function StudentsListCard({
   students,
@@ -72,6 +36,100 @@ export function StudentsListCard({
   isError: boolean;
   onEnroll: (student: Student) => void;
 }) {
+  const { departments } = useDepartments();
+
+  const departmentOptions = departments.map((d) => ({
+    label: d.code ? `${d.code} — ${d.name}` : d.name,
+    value: d.name,
+  }));
+
+  const columns: ColumnDef<Student>[] = [
+    {
+      id: "name",
+      accessorKey: "fullName",
+      header: "Student",
+      // One search box matches name, student number OR email.
+      filterFn: (row, _id, value) => {
+        const q = String(value).toLowerCase();
+        return (
+          row.original.fullName.toLowerCase().includes(q) ||
+          row.original.studentNumber.toLowerCase().includes(q) ||
+          row.original.email.toLowerCase().includes(q)
+        );
+      },
+      cell: ({ row }) => {
+        const s = row.original;
+        return (
+          <div className="flex min-w-0 items-center gap-3">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-primary/25 bg-primary/15 text-xs font-bold text-primary">
+              {initials(s.fullName)}
+            </div>
+            <div className="min-w-0">
+              <p className="truncate text-sm font-medium">{s.fullName}</p>
+              <p className="truncate font-mono text-xs text-muted-foreground">
+                {s.studentNumber}
+              </p>
+            </div>
+          </div>
+        );
+      },
+    },
+    {
+      id: "department",
+      accessorFn: (s) => s.department.name || "No department",
+      header: "Department",
+      filterFn: (row, id, value) =>
+        !Array.isArray(value) ||
+        value.length === 0 ||
+        value.includes(row.getValue(id)),
+      cell: ({ row }) =>
+        row.original.department.code ? (
+          <Badge variant="outline" className="font-mono">
+            {row.original.department.code}
+          </Badge>
+        ) : (
+          <span className="text-sm text-muted-foreground">—</span>
+        ),
+    },
+    {
+      id: "status",
+      accessorFn: (s) => (s.status === "ACTIVE" ? "Active" : "Inactive"),
+      header: "Status",
+      filterFn: (row, id, value) =>
+        !Array.isArray(value) ||
+        value.length === 0 ||
+        value.includes(row.getValue(id)),
+      cell: ({ row }) => (
+        <Badge
+          variant={row.original.status === "ACTIVE" ? "success" : "secondary"}
+        >
+          {row.original.status === "ACTIVE" ? "Active" : "Inactive"}
+        </Badge>
+      ),
+    },
+    {
+      id: "actions",
+      header: "",
+      cell: ({ row }) => {
+        const s = row.original;
+        return (
+          <div className="flex justify-end">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8"
+              onClick={() => onEnroll(s)}
+              aria-label={`Enroll ${s.fullName} in a course`}
+              title="Enroll in course"
+            >
+              <BookOpen className="h-4 w-4" />
+            </Button>
+          </div>
+        );
+      },
+    },
+  ];
+
   return (
     <Card className="border-border/70 bg-card/95 shadow-sm">
       <CardHeader>
@@ -85,31 +143,29 @@ export function StudentsListCard({
             : `${total} student${total === 1 ? "" : "s"} enrolled`}
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-3">
+      <CardContent>
         {isPending ? (
-          Array.from({ length: 3 }).map((_, i) => (
-            <Skeleton key={i} className="h-16 w-full rounded-2xl" />
-          ))
+          <div className="space-y-3 py-4">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Skeleton key={i} className="h-12 w-full rounded-xl" />
+            ))}
+          </div>
         ) : isError ? (
           <p className="rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
             Couldn&apos;t load students. Check the server and refresh.
           </p>
-        ) : students.length === 0 ? (
-          <div className="flex flex-col items-center gap-2 rounded-2xl border border-dashed border-border px-4 py-10 text-center">
-            <GraduationCap className="h-8 w-8 text-muted-foreground/50" />
-            <p className="text-sm font-medium">No students yet</p>
-            <p className="text-xs text-muted-foreground">
-              Enroll the first one with the form on the left.
-            </p>
-          </div>
         ) : (
-          students.map((s) => (
-            <StudentRow
-              key={s.id}
-              student={s}
-              onEnroll={() => onEnroll(s)}
-            />
-          ))
+          <GenericTable
+            columns={columns}
+            data={students}
+            filter
+            filterColumn="name"
+            filterPlaceHolder="Search name, number or email…"
+            filterWithSelect
+            filterWithSelectFieldNames={["department", "status"]}
+            filterWithSelectFieldOptions={[departmentOptions, statusOptions]}
+            pagination
+          />
         )}
       </CardContent>
     </Card>
