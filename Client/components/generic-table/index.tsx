@@ -16,6 +16,7 @@ import {
 } from "@tanstack/react-table";
 import { parseAsString, useQueryStates } from "nuqs";
 import React, { useMemo, useState } from "react";
+import { Search } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -321,11 +322,12 @@ export default function GenericTable<TData, TValue>({
 
   return (
     <div>
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3 py-4">
-          {filter && (
+      <div className="flex items-center gap-2 overflow-x-auto py-4">
+        {filter && (
+          <div className="relative min-w-[120px] flex-1 sm:max-w-sm">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
-              className="max-w-sm dark:text-white"
+              className="h-9 pl-9 dark:text-white"
               placeholder={filterPlaceHolder}
               key={filterColumn}
               value={textFilterValue}
@@ -335,24 +337,26 @@ export default function GenericTable<TData, TValue>({
                   ?.setFilterValue(event.target.value)
               }
             />
-          )}
-          {filterWithSelect && (
-            <>
-              {filterWithSelectFieldNames?.map((fieldName, index) => (
-                <React.Fragment key={index}>
-                  {table.getColumn(fieldName) && (
-                    <DataTableFacetedFilter
-                      column={table.getColumn(fieldName)}
-                      title={fieldName}
-                      options={filterWithSelectFieldOptions![index]!}
-                    />
-                  )}
-                </React.Fragment>
-              ))}
-            </>
-          )}
-          {customFilterComponent}
-        </div>
+          </div>
+        )}
+        {filterWithSelect && (
+          <div className="flex shrink-0 items-center gap-2">
+            {filterWithSelectFieldNames?.map((fieldName, index) => (
+              <React.Fragment key={index}>
+                {table.getColumn(fieldName) && (
+                  <DataTableFacetedFilter
+                    column={table.getColumn(fieldName)}
+                    title={
+                      fieldName.charAt(0).toUpperCase() + fieldName.slice(1)
+                    }
+                    options={filterWithSelectFieldOptions![index]!}
+                  />
+                )}
+              </React.Fragment>
+            ))}
+          </div>
+        )}
+        {customFilterComponent}
       </div>
       <div className="overflow-x-auto rounded-md border">
         <Table>
