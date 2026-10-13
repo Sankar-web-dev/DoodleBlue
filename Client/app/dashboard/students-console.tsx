@@ -50,7 +50,7 @@ export function StudentsConsole() {
           className="h-11 rounded-xl bg-primary px-5 text-primary-foreground shadow-lg shadow-primary/25 hover:bg-primary/90"
         >
           <Plus className="h-4 w-4" />
-          Enroll student
+          Create student
         </Button>
       </section>
 

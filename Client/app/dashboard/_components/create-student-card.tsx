@@ -172,11 +172,11 @@ export function CreateStudentDialog({
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && closeAndReset()}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-lg max-h-[90dvh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <GraduationCap className="h-5 w-5 text-primary" />
-            Enroll student
+            Create student
           </DialogTitle>
           <DialogDescription>
             Creates the student profile and their sign-in account. Share the
@@ -347,7 +347,7 @@ export function CreateStudentDialog({
             ) : (
               <>
                 <GraduationCap className="h-4 w-4" />
-                Enroll student
+                Create student
               </>
             )}
           </Button>

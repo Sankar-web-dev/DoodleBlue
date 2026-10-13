@@ -1,7 +1,7 @@
 "use client";
 
 import { type ColumnDef } from "@tanstack/react-table";
-import { BookOpen } from "lucide-react";
+import { BookOpen, UserRoundArrowLeft } from "lucide-react";
 
 import { Student } from "@/api/students.api";
 import { Badge } from "@/components/ui/badge";
@@ -110,20 +110,20 @@ export function StudentsListCard({
     },
     {
       id: "actions",
-      header: "",
+      header: "Assign",
       cell: ({ row }) => {
         const s = row.original;
         return (
-          <div className="flex justify-end">
+          <div className="">
             <Button
               variant="ghost"
               size="icon"
-              className="h-8 w-8"
+              // className="h-8 w-8"
               onClick={() => onEnroll(s)}
               aria-label={`Enroll ${s.fullName} in a course`}
               title="Enroll in course"
             >
-              <BookOpen className="h-4 w-4" />
+              <UserRoundArrowLeft className="h-4 w-4" />
             </Button>
           </div>
         );
