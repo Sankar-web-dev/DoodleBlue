@@ -16,7 +16,6 @@ import {
   Loader2,
   Mail,
   Sparkles,
-  Crown,
 } from "lucide-react";
 
 import { usersService, USERS_LIST_KEY, ListedUser } from "@/api/users.api";

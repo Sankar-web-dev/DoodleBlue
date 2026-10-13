@@ -3,7 +3,6 @@ import Link from 'next/link'
 import { 
   Package, 
   PackagePlus, 
-  BarChart, 
   ShoppingCart, 
   FileText, 
   Layers 

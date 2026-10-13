@@ -74,7 +74,6 @@ export function ConsoleShell({ user }: { user: AuthUser }) {
 
   const [section, setSection] = useState<SectionId>(items[0].id);
   const RoleIcon = isSuper ? Crown : UserCog;
-  const activeItem = items.find((i) => i.id === section);
   const isFetching = useIsFetching();
 
   return (

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
@@ -80,7 +80,7 @@ function CreateStudentCard() {
     queryKey: [...DEPARTMENTS_LIST_KEY, "active"],
     queryFn: () => departmentsService.listDepartments({ isActive: true, limit: 100 }),
   });
-  const departments = deptData?.data ?? [];
+  const departments = useMemo(() => deptData?.data ?? [], [deptData]);
 
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
