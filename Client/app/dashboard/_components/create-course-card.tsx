@@ -26,7 +26,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useDepartments } from "./use-departments";
+import { useDepartments } from "../_hooks/use-departments";
 
 export function CreateCourseDialog({
   open,

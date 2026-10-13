@@ -30,7 +30,7 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
-import { useDepartments } from "./use-departments";
+import { useDepartments } from "../_hooks/use-departments";
 import {
   EditCourseDialog,
   DeleteCourseDialog,

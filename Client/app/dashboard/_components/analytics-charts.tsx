@@ -3,6 +3,7 @@
 import { PieChart } from "lucide-react";
 
 import { AnalyticsSummary } from "@/api/analytics.api";
+import { BarChart } from "@/components/ui/bar-chart";
 import { DonutChart } from "@/components/ui/donut-chart";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -15,7 +16,6 @@ import {
 
 const CHART_COLORS = {
   active: "oklch(0.5553 0.1455 48.9975)", // solar primary
-  completed: "oklch(0.6806 0.1423 75.8340)", // dusk amber
   withdrawn: "oklch(0.4437 0.1613 26.8994)", // destructive
   students: "oklch(0.5553 0.1455 48.9975)", // solar primary
   departments: "oklch(0.6806 0.1423 75.8340)", // dusk amber
@@ -72,27 +72,22 @@ export function AnalyticsCharts({
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
       <ChartCard
-        title="Enrollment status"
-        description="How student–course mappings are distributed."
+        title="Student status"
+        description="Active versus inactive student accounts."
         isPending={isPending}
         isError={isError}
       >
-        <DonutChart
-          centerLabel="enrollments"
-          slices={[
+        <BarChart
+          ariaLabel="Active versus inactive students"
+          bars={[
             {
               label: "Active",
-              value: summary?.enrollments.active ?? 0,
+              value: summary?.students.active ?? 0,
               color: CHART_COLORS.active,
             },
             {
-              label: "Completed",
-              value: summary?.enrollments.completed ?? 0,
-              color: CHART_COLORS.completed,
-            },
-            {
-              label: "Withdrawn",
-              value: summary?.enrollments.withdrawn ?? 0,
+              label: "Inactive",
+              value: summary?.students.inactive ?? 0,
               color: CHART_COLORS.withdrawn,
             },
           ]}
