@@ -7,7 +7,6 @@ import {
   Building2,
   ClipboardList,
   GraduationCap,
-  LayoutDashboard,
   PieChart,
   UserCog,
 } from "lucide-react";
