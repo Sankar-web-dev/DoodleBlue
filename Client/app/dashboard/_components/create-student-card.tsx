@@ -34,7 +34,7 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
-import { useDepartments } from "./use-departments";
+import { useDepartments } from "../_hooks/use-departments";
 import { generatePassword } from "./console-utils";
 
 function suggestStudentNumber(): string {
