@@ -40,7 +40,13 @@ const statusOptions = [
   { label: "Inactive", value: "Inactive" },
 ];
 
-export function DepartmentsCard() {
+export function DepartmentsCard({
+  canUpdate = true,
+  canDelete = true,
+}: {
+  canUpdate?: boolean;
+  canDelete?: boolean;
+}) {
   const queryClient = useQueryClient();
 
   const [editing, setEditing] = useState<Department | null>(null);
@@ -117,58 +123,71 @@ export function DepartmentsCard() {
         </Badge>
       ),
     },
-    {
-      id: "actions",
-      header: "",
-      cell: ({ row }) => {
-        const d = row.original;
-        const busy =
-          updateMutation.isPending && updateMutation.variables?.id === d.id;
-        return (
-          <div className="flex justify-end gap-1.5">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8"
-              onClick={() => setEditing(d)}
-              disabled={busy}
-              aria-label={`Rename ${d.name}`}
-              title="Rename"
-            >
-              <Pencil className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8"
-              onClick={() => updateMutation.mutate(d)}
-              disabled={busy}
-              aria-label={
-                d.isActive ? `Deactivate ${d.name}` : `Activate ${d.name}`
-              }
-              title={d.isActive ? "Deactivate" : "Activate"}
-            >
-              {busy ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <Power className="h-4 w-4" />
-              )}
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 text-destructive hover:text-destructive"
-              onClick={() => setDeleting(d)}
-              disabled={busy}
-              aria-label={`Delete ${d.name}`}
-              title="Delete"
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
-          </div>
-        );
-      },
-    },
+    ...(canUpdate || canDelete
+      ? [
+          {
+            id: "actions",
+            header: "",
+            cell: ({ row }: { row: { original: Department } }) => {
+              const d = row.original;
+              const busy =
+                updateMutation.isPending &&
+                updateMutation.variables?.id === d.id;
+              return (
+                <div className="flex justify-end gap-1.5">
+                  {canUpdate && (
+                    <>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8"
+                        onClick={() => setEditing(d)}
+                        disabled={busy}
+                        aria-label={`Rename ${d.name}`}
+                        title="Rename"
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8"
+                        onClick={() => updateMutation.mutate(d)}
+                        disabled={busy}
+                        aria-label={
+                          d.isActive
+                            ? `Deactivate ${d.name}`
+                            : `Activate ${d.name}`
+                        }
+                        title={d.isActive ? "Deactivate" : "Activate"}
+                      >
+                        {busy ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Power className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </>
+                  )}
+                  {canDelete && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-destructive hover:text-destructive"
+                      onClick={() => setDeleting(d)}
+                      disabled={busy}
+                      aria-label={`Delete ${d.name}`}
+                      title="Delete"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
+              );
+            },
+          } satisfies ColumnDef<Department>,
+        ]
+      : []),
   ];
 
   return (

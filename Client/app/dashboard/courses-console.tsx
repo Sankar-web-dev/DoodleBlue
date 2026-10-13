@@ -8,12 +8,15 @@ import {
   coursesService,
   COURSES_LIST_KEY,
 } from "@/api/courses.api";
+import { AuthUser } from "@/api/auth.api";
+import { usePermissions } from "@/lib/permissions";
 import { Button } from "@/components/ui/button";
 import { ConsoleStatsCards } from "./_components/console-stats-cards";
 import { CreateCourseDialog } from "./_components/create-course-card";
 import { CoursesCard } from "./_components/courses-card";
 
-export function CoursesConsole() {
+export function CoursesConsole({ user }: { user: AuthUser }) {
+  const { can } = usePermissions(user);
   const [creating, setCreating] = useState(false);
 
   const { data, isPending } = useQuery({
@@ -42,18 +45,23 @@ export function CoursesConsole() {
             Academic curriculum, department course allocations, and course states.
           </p>
         </div>
-        <Button
-          onClick={() => setCreating(true)}
-          className="h-11 rounded-xl bg-primary px-5 text-primary-foreground shadow-lg shadow-primary/25 hover:bg-primary/90"
-        >
-          <Plus className="h-4 w-4" />
-          Create course
-        </Button>
+        {can("courses", "create") && (
+          <Button
+            onClick={() => setCreating(true)}
+            className="h-11 rounded-xl bg-primary px-5 text-primary-foreground shadow-lg shadow-primary/25 hover:bg-primary/90"
+          >
+            <Plus className="h-4 w-4" />
+            Create course
+          </Button>
+        )}
       </section>
 
       <ConsoleStatsCards stats={stats} isPending={isPending} />
 
-      <CoursesCard />
+      <CoursesCard
+        canUpdate={can("courses", "update")}
+        canDelete={can("courses", "delete")}
+      />
 
       <CreateCourseDialog open={creating} onClose={() => setCreating(false)} />
     </div>

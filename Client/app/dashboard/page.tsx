@@ -7,27 +7,18 @@ import {
   GraduationCap,
   Mail,
   ShieldCheck,
-  Crown,
-  UserCog,
   BookOpen,
   KeyRound,
 } from "lucide-react";
 
-import { authService, AUTH_ME_KEY, ROLE_LABELS, UserRole } from "@/api/auth.api";
+import { authService, AUTH_ME_KEY, getRoleLabel } from "@/api/auth.api";
 import { ApiRequestError } from "@/lib/api";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
 import { LogoutButton } from "@/components/ui/logout-button";
 import { ChangePasswordDialog } from "./_components/change-password-dialog";
 import { ConsoleShell } from "./console-shell";
-
-const ROLE_STYLES: Record<UserRole, { badge: string; icon: typeof Crown; label: string }> = {
-  SUPER_ADMIN: { badge: "bg-primary text-primary-foreground border-transparent shadow-sm shadow-primary/25", icon: Crown, label: "Super Admin" },
-  ADMIN: { badge: "bg-secondary text-secondary-foreground border-border", icon: UserCog, label: "Admin" },
-  STUDENT: { badge: "bg-accent text-accent-foreground border-border/80", icon: BookOpen, label: "Student" },
-};
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -46,8 +37,6 @@ export default function DashboardPage() {
   }, [error, router]);
 
   if (error) {
-    // 401s redirect via the effect above; anything else means the API is
-    // unreachable or failed — don't hang on the skeleton.
     if (!(error instanceof ApiRequestError && error.status === 401)) {
       return (
         <div className="flex min-h-screen items-center justify-center bg-ambient-mesh p-6">
@@ -74,17 +63,15 @@ export default function DashboardPage() {
 
   if (isPending || !data) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-ambient-mesh p-6">
-      </div>
+      <div className="flex min-h-screen items-center justify-center bg-ambient-mesh p-6" />
     );
   }
 
   const { user } = data;
-  const role = ROLE_STYLES[user.role];
-  const RoleIcon = role.icon;
 
-  // Admin roles get the sidebar layout with section navigation.
-  if (user.role !== "STUDENT") {
+  // Users with a student profile (studentId) see the student portal.
+  // Everyone else (SUPER_ADMIN + any custom admin-type role) sees the sidebar shell.
+  if (!user.studentId) {
     return <ConsoleShell user={user} />;
   }
 
@@ -99,9 +86,9 @@ export default function DashboardPage() {
             <span className="text-lg font-bold tracking-tight">CampusLMS</span>
           </div>
           <div className="flex items-center gap-3">
-            <Badge className={role.badge}>
-              <RoleIcon className="h-3.5 w-3.5" />
-              {ROLE_LABELS[user.role]}
+            <Badge className="bg-accent text-accent-foreground border-border/80">
+              <BookOpen className="h-3.5 w-3.5" />
+              {getRoleLabel(user.role)}
             </Badge>
             <Button
               variant="outline"

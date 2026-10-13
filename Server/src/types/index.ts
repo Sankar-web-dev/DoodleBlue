@@ -11,14 +11,16 @@
 
 // ─── Re-export enum constants (runtime values) ────────────────────────────────
 
-export { USER_ROLES } from "../modules/auth/user.model.js";
+export { RESOURCES, ACTIONS } from "../modules/role/role.model.js";
+export { SYSTEM_ROLES } from "../modules/auth/user.model.js";
 export { STUDENT_STATUSES } from "../modules/student/student.model.js";
 export { ENROLLMENT_STATUSES } from "../modules/enrollment/enrollment.model.js";
 export { ATTENDANCE_STATUSES } from "../modules/attendance/attendance.model.js";
 
 // ─── Re-export enum types ─────────────────────────────────────────────────────
 
-export type { UserRole } from "../modules/auth/user.model.js";
+export type { Resource, Action, IPermission, IRole } from "../modules/role/role.model.js";
+export type { SystemRole } from "../modules/auth/user.model.js";
 export type { StudentStatus } from "../modules/student/student.model.js";
 export type { EnrollmentStatus } from "../modules/enrollment/enrollment.model.js";
 export type { AttendanceStatus } from "../modules/attendance/attendance.model.js";
@@ -26,6 +28,7 @@ export type { AttendanceStatus } from "../modules/attendance/attendance.model.js
 // ─── Re-export document interfaces ───────────────────────────────────────────
 
 export type { IUser } from "../modules/auth/user.model.js";
+export type { IRole as IRoleDoc } from "../modules/role/role.model.js";
 export type { IStudent } from "../modules/student/student.model.js";
 export type { IDepartment } from "../modules/department/department.model.js";
 export type { ICourse } from "../modules/course/course.model.js";
@@ -160,7 +163,9 @@ export interface SafeUserResponse {
   id: string;
   name: string;
   email: string;
-  role: import("../modules/auth/user.model.js").UserRole;
+  /** Role name string — "SUPER_ADMIN" or the Role document's name. */
+  role: string;
+  roleId?: string;
   /** Populated only for student role accounts. */
   studentId?: string;
   mustChangePassword: boolean;

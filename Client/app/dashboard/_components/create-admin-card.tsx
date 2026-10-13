@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState, useEffect } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
   UserPlus,
@@ -13,9 +13,12 @@ import {
   Loader2,
   Mail,
   Sparkles,
+  ShieldCheck,
+  ChevronDown,
 } from "lucide-react";
 
 import { usersService, USERS_LIST_KEY } from "@/api/users.api";
+import { rolesApi, ROLES_LIST_KEY } from "@/api/roles.api";
 import { ApiRequestError } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -27,6 +30,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { generatePassword } from "./console-utils";
 
 export function CreateAdminDialog({
@@ -38,15 +47,31 @@ export function CreateAdminDialog({
 }) {
   const queryClient = useQueryClient();
 
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [name, setName]               = useState("");
+  const [email, setEmail]             = useState("");
+  const [password, setPassword]       = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [formError, setFormError] = useState<string | null>(null);
-  const [created, setCreated] = useState<{
-    email: string;
-    password: string;
-  } | null>(null);
+  const [selectedRoleId, setSelectedRoleId] = useState<string>("");
+  const [formError, setFormError]     = useState<string | null>(null);
+  const [created, setCreated]         = useState<{ email: string; password: string } | null>(null);
+
+  // Fetch available roles for the dropdown
+  const { data: rolesData } = useQuery({
+    queryKey: ROLES_LIST_KEY,
+    queryFn: () => rolesApi.listRoles({ isActive: true, limit: 100 }),
+    enabled: open,
+  });
+
+  const roles = (rolesData?.data ?? []).filter((r) => r.name !== "STUDENT");
+  const selectedRole = roles.find((r) => r.id === selectedRoleId);
+
+  // Auto-select the ADMIN role when roles load
+  useEffect(() => {
+    if (roles.length > 0 && !selectedRoleId) {
+      const adminRole = roles.find((r) => r.name === "ADMIN");
+      setSelectedRoleId(adminRole?.id ?? roles[0].id);
+    }
+  }, [roles, selectedRoleId]);
 
   const createMutation = useMutation({
     mutationFn: () =>
@@ -54,6 +79,7 @@ export function CreateAdminDialog({
         name: name.trim(),
         email: email.trim(),
         temporaryPassword: password,
+        roleId: selectedRoleId || undefined,
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: USERS_LIST_KEY });
@@ -61,6 +87,7 @@ export function CreateAdminDialog({
       setName("");
       setEmail("");
       setPassword(generatePassword());
+      setSelectedRoleId("");
       setFormError(null);
       toast.success("Admin account created", {
         description: "Share the credentials with them.",
@@ -111,6 +138,7 @@ export function CreateAdminDialog({
     setEmail("");
     setPassword("");
     setShowPassword(false);
+    setSelectedRoleId("");
     setFormError(null);
     setCreated(null);
   };
@@ -124,11 +152,12 @@ export function CreateAdminDialog({
             Create admin
           </DialogTitle>
           <DialogDescription>
-            Admins manage students and enrollment. Share the credentials with
-            them — they can sign in right away.
+            Assign a role to define exactly what this user can access.
           </DialogDescription>
         </DialogHeader>
+
         <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+          {/* Name */}
           <div className="space-y-2">
             <Label htmlFor="admin-name">Full name</Label>
             <Input
@@ -141,6 +170,7 @@ export function CreateAdminDialog({
             />
           </div>
 
+          {/* Email */}
           <div className="space-y-2">
             <Label htmlFor="admin-email">Email address</Label>
             <div className="relative">
@@ -157,6 +187,48 @@ export function CreateAdminDialog({
             </div>
           </div>
 
+          {/* Role selector */}
+          <div className="space-y-2">
+            <Label>Role</Label>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  type="button"
+                  className="h-11 w-full justify-between rounded-xl font-normal"
+                  disabled={createMutation.isPending || roles.length === 0}
+                >
+                  <span className="flex items-center gap-2">
+                    <ShieldCheck className="h-4 w-4 text-muted-foreground" />
+                    {selectedRole ? selectedRole.name : "Select a role…"}
+                  </span>
+                  <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-full min-w-[340px]">
+                {roles.map((role) => (
+                  <DropdownMenuItem
+                    key={role.id}
+                    onSelect={() => setSelectedRoleId(role.id)}
+                    className="flex flex-col items-start gap-0.5 py-2.5"
+                  >
+                    <span className="font-medium">{role.name}</span>
+                    {role.description && (
+                      <span className="text-xs text-muted-foreground">{role.description}</span>
+                    )}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+            {selectedRole && (
+              <p className="text-xs text-muted-foreground">
+                {selectedRole.permissions.length} resource
+                {selectedRole.permissions.length !== 1 ? "s" : ""} with access
+              </p>
+            )}
+          </div>
+
+          {/* Password */}
           <div className="space-y-2">
             <Label htmlFor="admin-password">Temporary password</Label>
             <div className="relative">

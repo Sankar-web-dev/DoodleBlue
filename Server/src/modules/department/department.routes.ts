@@ -2,15 +2,15 @@ import { Router } from "express";
 import { authenticate, authorize } from "../auth/auth.middleware";
 import * as DepartmentController from "./department.controller";
 
-// Departments are institution-level config — both admin roles may manage them.
+// Department management — requires the "departments" resource permission.
 const router = Router();
 
-router.use(authenticate, authorize("SUPER_ADMIN", "ADMIN"));
+router.use(authenticate);
 
-router.post("/", DepartmentController.createDepartment);
-router.get("/", DepartmentController.listDepartments);
-router.get("/:id", DepartmentController.getDepartment);
-router.patch("/:id", DepartmentController.updateDepartment);
-router.delete("/:id", DepartmentController.deleteDepartment);
+router.post("/", authorize("departments", "create"), DepartmentController.createDepartment);
+router.get("/", authorize("departments", "read"), DepartmentController.listDepartments);
+router.get("/:id", authorize("departments", "read"), DepartmentController.getDepartment);
+router.patch("/:id", authorize("departments", "update"), DepartmentController.updateDepartment);
+router.delete("/:id", authorize("departments", "delete"), DepartmentController.deleteDepartment);
 
 export default router;

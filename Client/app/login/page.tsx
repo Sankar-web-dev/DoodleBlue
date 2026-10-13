@@ -15,7 +15,7 @@ import {
   Image as ImageIcon,
 } from "lucide-react";
 
-import { authService, AUTH_ME_KEY, ROLE_LABELS } from "@/api/auth.api";
+import { authService, AUTH_ME_KEY, getRoleLabel } from "@/api/auth.api";
 import { ApiRequestError } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -37,7 +37,7 @@ export default function LoginPage() {
       setFormError(null);
 
       toast.success(`Welcome back, ${user.name.split(" ")[0]}`, {
-        description: `Signed in as ${ROLE_LABELS[user.role]}`,
+        description: `Signed in as ${getRoleLabel(user.role)}`,
       });
       router.replace("/dashboard");
     },

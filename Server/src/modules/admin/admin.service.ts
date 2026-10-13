@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
 import User from "../auth/user.model";
+import Role from "../role/role.model";
 import { ApiError } from "../../lib/ApiError";
 import type {
   CreateAdminBody,
@@ -17,6 +18,7 @@ interface LeanAdmin {
   name: string;
   email: string;
   role: string;
+  roleId?: mongoose.Types.ObjectId;
   mustChangePassword: boolean;
   isActive: boolean;
   createdAt: Date;
@@ -30,6 +32,7 @@ function toResponse(doc: LeanAdmin) {
     name: doc.name,
     email: doc.email,
     role: doc.role,
+    roleId: doc.roleId?.toString(),
     mustChangePassword: doc.mustChangePassword,
     isActive: doc.isActive,
     createdAt: doc.createdAt,
@@ -53,6 +56,16 @@ export async function createAdmin(input: CreateAdminBody) {
     );
   }
 
+  // Resolve the target role — caller-supplied roleId takes precedence;
+  // otherwise we fall back to the system "ADMIN" role.
+  const roleDoc = input.roleId
+    ? await Role.findById(input.roleId)
+    : await Role.findOne({ name: "ADMIN", isSystem: true });
+
+  if (!roleDoc || !roleDoc.isActive) {
+    throw new ApiError(400, "ROLE_NOT_FOUND", "The specified role was not found or is inactive");
+  }
+
   const passwordHash = await bcrypt.hash(
     input.temporaryPassword,
     BCRYPT_ROUNDS
@@ -62,7 +75,8 @@ export async function createAdmin(input: CreateAdminBody) {
     name: input.name,
     email: input.email,
     passwordHash,
-    role: "ADMIN",
+    role: roleDoc.name,
+    roleId: roleDoc._id,
     mustChangePassword: true,
     isActive: true,
   });
@@ -75,9 +89,11 @@ export async function createAdmin(input: CreateAdminBody) {
 export async function listAdmins(query: ListAdminsQuery) {
   const { page, limit, search, isActive } = query;
 
-  // This module manages ADMIN accounts only — SUPER_ADMIN and STUDENT
-  // records are out of scope no matter what filters are passed.
-  const filter: Record<string, unknown> = { role: "ADMIN" };
+  // Exclude SUPER_ADMIN and student accounts — only show non-super, non-student users.
+  const filter: Record<string, unknown> = {
+    role: { $nin: ["SUPER_ADMIN"] },
+    studentId: { $exists: false },
+  };
   if (isActive !== undefined) filter.isActive = isActive;
   if (search) {
     const safe = escapeRegex(search);
@@ -110,7 +126,11 @@ export async function listAdmins(query: ListAdminsQuery) {
 // ─── getAdminById ─────────────────────────────────────────────────────────────
 
 export async function getAdminById(id: string) {
-  const doc = await User.findOne({ _id: id, role: "ADMIN" }).lean();
+  const doc = await User.findOne({
+    _id: id,
+    role: { $ne: "SUPER_ADMIN" },
+    studentId: { $exists: false },
+  }).lean();
   if (!doc) {
     throw new ApiError(404, "ADMIN_NOT_FOUND", "Admin not found");
   }
@@ -124,10 +144,10 @@ export async function updateAdmin(id: string, input: UpdateAdminBody) {
   if (input.name !== undefined) set.name = input.name;
   if (input.isActive !== undefined) set.isActive = input.isActive;
 
-  // Scoped to role ADMIN — a SUPER_ADMIN's own record can never be
+  // Scoped to non-SUPER_ADMIN — a SUPER_ADMIN's own record can never be
   // deactivated through this endpoint.
   const doc = await User.findOneAndUpdate(
-    { _id: id, role: "ADMIN" },
+    { _id: id, role: { $ne: "SUPER_ADMIN" }, studentId: { $exists: false } },
     { $set: set },
     { new: true, runValidators: true }
   ).lean();

@@ -1,18 +1,18 @@
 import mongoose, { Schema, Document, Model } from "mongoose";
 
-export const USER_ROLES = [
-  "SUPER_ADMIN",
-  "ADMIN",
-  "STUDENT",
-] as const;
-
-export type UserRole = (typeof USER_ROLES)[number];
+// SUPER_ADMIN is the only hardcoded system role.
+// All other roles are stored in the Role collection and referenced by roleId.
+export const SYSTEM_ROLES = ["SUPER_ADMIN"] as const;
+export type SystemRole = (typeof SYSTEM_ROLES)[number];
 
 export interface IUser extends Document {
   name: string;
   email: string;
   passwordHash: string;
-  role: UserRole;
+  /** Role name — "SUPER_ADMIN" for the system account, otherwise the Role document's name. */
+  role: string;
+  /** References the Role document. Not set for SUPER_ADMIN. */
+  roleId?: mongoose.Types.ObjectId;
   studentId?: mongoose.Types.ObjectId;
   mustChangePassword: boolean;
   isActive: boolean;
@@ -41,8 +41,12 @@ const userSchema = new Schema<IUser>(
     },
     role: {
       type: String,
-      enum: USER_ROLES,
       required: true,
+    },
+    roleId: {
+      type: Schema.Types.ObjectId,
+      ref: "Role",
+      required: false,
     },
     studentId: {
       type: Schema.Types.ObjectId,

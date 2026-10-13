@@ -1,22 +1,33 @@
 import { api } from "@/lib/api";
 
-export type UserRole = "SUPER_ADMIN" | "ADMIN" | "STUDENT";
+export interface RolePermission {
+  resource: string;
+  actions: ("create" | "read" | "update" | "delete")[];
+}
 
 export interface AuthUser {
   id: string;
   name: string;
   email: string;
-  role: UserRole;
+  /** Role name string — "SUPER_ADMIN" for the system account, role name otherwise. */
+  role: string;
+  roleId?: string;
   studentId?: string;
   mustChangePassword: boolean;
   isActive: boolean;
+  /** Granular permissions from the user's role. Empty for SUPER_ADMIN (implicit full access). */
+  permissions: RolePermission[];
 }
 
-export const ROLE_LABELS: Record<UserRole, string> = {
-  SUPER_ADMIN: "Super Admin",
-  ADMIN: "Admin",
-  STUDENT: "Student",
-};
+/** Display label for common known roles. Falls back to the raw name for custom roles. */
+export function getRoleLabel(role: string): string {
+  const labels: Record<string, string> = {
+    SUPER_ADMIN: "Super Admin",
+    ADMIN: "Admin",
+    STUDENT: "Student",
+  };
+  return labels[role] ?? role;
+}
 
 export const authApi = {
   signIn: (email: string, password: string) =>

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Crown, UserCog, KeyRound } from "lucide-react";
 
-import { AuthUser, ROLE_LABELS } from "@/api/auth.api";
+import { AuthUser, getRoleLabel } from "@/api/auth.api";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { LogoutButton } from "@/components/ui/logout-button";
@@ -42,7 +42,7 @@ export function SidebarUserFooter({ user }: { user: AuthUser }) {
         >
           <RoleIcon className="h-3.5 w-3.5" />
           <span className="group-data-[collapsible=icon]:hidden">
-            {ROLE_LABELS[user.role]}
+            {getRoleLabel(user.role)}
           </span>
         </Badge>
         <Button

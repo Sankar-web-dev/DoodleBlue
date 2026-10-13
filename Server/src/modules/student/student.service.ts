@@ -3,6 +3,7 @@ import bcrypt from "bcrypt";
 import User from "../auth/user.model";
 import Student from "./student.model";
 import Department from "../department/department.model";
+import Role from "../role/role.model";
 import { ApiError } from "../../lib/ApiError";
 import type {
   CreateStudentBody,
@@ -122,9 +123,10 @@ async function fetchPopulated(id: string | mongoose.Types.ObjectId) {
 export async function createStudent(input: CreateStudentBody) {
   await assertActiveDepartment(input.departmentId);
 
-  const [emailTaken, numberTaken] = await Promise.all([
+  const [emailTaken, numberTaken, studentRole] = await Promise.all([
     User.exists({ email: input.email }),
     Student.exists({ studentNumber: input.studentNumber }),
+    Role.findOne({ name: "STUDENT", isSystem: true }),
   ]);
 
   if (emailTaken) {
@@ -139,6 +141,13 @@ export async function createStudent(input: CreateStudentBody) {
       409,
       "STUDENT_NUMBER_IN_USE",
       "A student with this student number already exists"
+    );
+  }
+  if (!studentRole) {
+    throw new ApiError(
+      500,
+      "STUDENT_ROLE_MISSING",
+      "System STUDENT role is missing — run the seed script"
     );
   }
 
@@ -156,7 +165,8 @@ export async function createStudent(input: CreateStudentBody) {
           name: input.fullName,
           email: input.email,
           passwordHash,
-          role: "STUDENT",
+          role: studentRole.name,
+          roleId: studentRole._id,
           mustChangePassword: false,
           isActive: true,
         },

@@ -19,7 +19,7 @@ import { NotificationSheet } from "./_components/notification-sheet";
 
 export function ConsoleShell({ user }: { user: AuthUser }) {
   const isSuper = user.role === "SUPER_ADMIN";
-  const items = getNavItems(isSuper);
+  const items = getNavItems(user);
 
   const [section, setSection] = useState<SectionId>(items[0].id);
 
@@ -45,7 +45,7 @@ export function ConsoleShell({ user }: { user: AuthUser }) {
         </header>
 
         <main className="flex min-h-[calc(100vh-8rem)] flex-1 flex-col gap-4 p-4 md:gap-8 md:px-5 md:py-2">
-          <SectionContent section={section} isSuper={isSuper} />
+          <SectionContent section={section} user={user} />
         </main>
       </SidebarInset>
     </SidebarProvider>

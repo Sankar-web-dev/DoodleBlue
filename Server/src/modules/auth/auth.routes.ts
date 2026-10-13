@@ -3,9 +3,8 @@ import bcrypt from "bcrypt";
 import { z } from "zod";
 import rateLimit from "express-rate-limit";
 import User, { IUser } from "./user.model";
-import {
-  authenticate,
-} from "./auth.middleware";
+import Role, { IPermission } from "../role/role.model";
+import { authenticate } from "./auth.middleware";
 
 const router = Router();
 
@@ -33,15 +32,25 @@ const changePasswordSchema = z.object({
   newPassword: z.string().min(10).max(128),
 }).strict();
 
-function safeUser(user: IUser) {
+/** Build the safe user payload including the role's permission matrix. */
+async function safeUser(user: IUser) {
+  let permissions: IPermission[] = [];
+
+  if (user.role !== "SUPER_ADMIN" && user.roleId) {
+    const role = await Role.findById(user.roleId).lean();
+    permissions = (role?.permissions as IPermission[]) ?? [];
+  }
+
   return {
     id: user._id.toString(),
     name: user.name,
     email: user.email,
     role: user.role,
+    roleId: user.roleId?.toString(),
     studentId: user.studentId?.toString(),
     mustChangePassword: user.mustChangePassword,
     isActive: user.isActive,
+    permissions,
   };
 }
 
@@ -115,7 +124,7 @@ router.post(
     res.status(200).json({
       success: true,
       data: {
-        user: safeUser(user),
+        user: await safeUser(user),
       },
     });
   }
@@ -157,13 +166,13 @@ router.post(
 router.get(
   "/me",
   authenticate,
-  (req: Request, res: Response) => {
+  async (_req: Request, res: Response) => {
     const user = res.locals.currentUser as IUser;
 
     res.status(200).json({
       success: true,
       data: {
-        user: safeUser(user),
+        user: await safeUser(user),
       },
     });
   }

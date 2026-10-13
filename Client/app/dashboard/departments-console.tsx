@@ -8,12 +8,15 @@ import {
   departmentsService,
   DEPARTMENTS_LIST_KEY,
 } from "@/api/departments.api";
+import { AuthUser } from "@/api/auth.api";
+import { usePermissions } from "@/lib/permissions";
 import { Button } from "@/components/ui/button";
 import { ConsoleStatsCards } from "./_components/console-stats-cards";
 import { CreateDepartmentDialog } from "./_components/create-department-card";
 import { DepartmentsCard } from "./_components/departments-card";
 
-export function DepartmentsConsole() {
+export function DepartmentsConsole({ user }: { user: AuthUser }) {
+  const { can } = usePermissions(user);
   const [creating, setCreating] = useState(false);
 
   const { data, isPending } = useQuery({
@@ -42,18 +45,23 @@ export function DepartmentsConsole() {
             Academic faculties, departments, and course allocations.
           </p>
         </div>
-        <Button
-          onClick={() => setCreating(true)}
-          className="h-11 rounded-xl bg-primary px-5 text-primary-foreground shadow-lg shadow-primary/25 hover:bg-primary/90"
-        >
-          <Plus className="h-4 w-4" />
-          Create department
-        </Button>
+        {can("departments", "create") && (
+          <Button
+            onClick={() => setCreating(true)}
+            className="h-11 rounded-xl bg-primary px-5 text-primary-foreground shadow-lg shadow-primary/25 hover:bg-primary/90"
+          >
+            <Plus className="h-4 w-4" />
+            Create department
+          </Button>
+        )}
       </section>
 
       <ConsoleStatsCards stats={stats} isPending={isPending} />
 
-      <DepartmentsCard />
+      <DepartmentsCard
+        canUpdate={can("departments", "update")}
+        canDelete={can("departments", "delete")}
+      />
 
       <CreateDepartmentDialog
         open={creating}

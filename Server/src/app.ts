@@ -5,6 +5,7 @@ import { createSessionMiddleware } from "./config/session";
 import authRoutes from "./modules/auth/auth.routes";
 import usersRoutes from "./modules/users/users.routes";
 import adminRoutes from "./modules/admin/admin.routes";
+import roleRoutes from "./modules/role/role.routes";
 import studentRoutes from "./modules/student/student.routes";
 import departmentRoutes from "./modules/department/department.routes";
 import courseRoutes from "./modules/course/course.routes";
@@ -49,6 +50,7 @@ export function createApp() {
 
   app.use("/api/v1/auth", authRoutes);
   app.use("/api/v1/users", usersRoutes);
+  app.use("/api/v1/roles", roleRoutes);
   app.use("/api/v1/admins", adminRoutes);
   app.use("/api/v1/students", studentRoutes);
   app.use("/api/v1/departments", departmentRoutes);

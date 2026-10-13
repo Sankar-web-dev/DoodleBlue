@@ -46,10 +46,10 @@ export function useNotifications() {
     refetchInterval: 60_000,
   });
 
-  // Fetch admin users
+  // Fetch admin-type accounts (server already excludes SUPER_ADMIN + students)
   const adminsQuery = useQuery({
     queryKey: [...USERS_LIST_KEY, "notifications", "admins"],
-    queryFn: () => usersService.listUsers({ role: "ADMIN", limit: 20, page: 1 }),
+    queryFn: () => usersService.listUsers({ limit: 20, page: 1 }),
     staleTime: 30_000,
     refetchInterval: 60_000,
   });

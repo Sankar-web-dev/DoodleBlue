@@ -9,13 +9,16 @@ import {
   STUDENTS_LIST_KEY,
   Student,
 } from "@/api/students.api";
+import { AuthUser } from "@/api/auth.api";
+import { usePermissions } from "@/lib/permissions";
 import { Button } from "@/components/ui/button";
 import { ConsoleStatsCards } from "./_components/console-stats-cards";
 import { CreateStudentDialog } from "./_components/create-student-card";
 import { StudentsListCard } from "./_components/students-list-card";
 import { EnrollStudentDialog } from "./enroll-student-dialog";
 
-export function StudentsConsole() {
+export function StudentsConsole({ user }: { user: AuthUser }) {
+  const { can } = usePermissions(user);
   const [creating, setCreating] = useState(false);
   const [enrolling, setEnrolling] = useState<Student | null>(null);
 
@@ -45,13 +48,15 @@ export function StudentsConsole() {
             Enroll students, map them to academic departments, and manage accounts.
           </p>
         </div>
-        <Button
-          onClick={() => setCreating(true)}
-          className="h-11 rounded-xl bg-primary px-5 text-primary-foreground shadow-lg shadow-primary/25 hover:bg-primary/90"
-        >
-          <Plus className="h-4 w-4" />
-          Create student
-        </Button>
+        {can("students", "create") && (
+          <Button
+            onClick={() => setCreating(true)}
+            className="h-11 rounded-xl bg-primary px-5 text-primary-foreground shadow-lg shadow-primary/25 hover:bg-primary/90"
+          >
+            <Plus className="h-4 w-4" />
+            Create student
+          </Button>
+        )}
       </section>
 
       <ConsoleStatsCards stats={stats} isPending={isPending} />
@@ -62,6 +67,7 @@ export function StudentsConsole() {
         isPending={isPending}
         isError={isError}
         onEnroll={setEnrolling}
+        canEnroll={can("enrollments", "create")}
       />
 
       <CreateStudentDialog open={creating} onClose={() => setCreating(false)} />

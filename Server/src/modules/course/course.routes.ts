@@ -2,15 +2,15 @@ import { Router } from "express";
 import { authenticate, authorize } from "../auth/auth.middleware";
 import * as CourseController from "./course.controller";
 
-// Courses are institution-level config — both admin roles may manage them.
+// Course management — requires the "courses" resource permission.
 const router = Router();
 
-router.use(authenticate, authorize("SUPER_ADMIN", "ADMIN"));
+router.use(authenticate);
 
-router.post("/", CourseController.createCourse);
-router.get("/", CourseController.listCourses);
-router.get("/:id", CourseController.getCourse);
-router.patch("/:id", CourseController.updateCourse);
-router.delete("/:id", CourseController.deleteCourse);
+router.post("/", authorize("courses", "create"), CourseController.createCourse);
+router.get("/", authorize("courses", "read"), CourseController.listCourses);
+router.get("/:id", authorize("courses", "read"), CourseController.getCourse);
+router.patch("/:id", authorize("courses", "update"), CourseController.updateCourse);
+router.delete("/:id", authorize("courses", "delete"), CourseController.deleteCourse);
 
 export default router;

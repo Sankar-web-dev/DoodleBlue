@@ -2,11 +2,11 @@ import { Router } from "express";
 import { authenticate, authorize } from "../auth/auth.middleware";
 import * as AnalyticsController from "./analytics.controller";
 
-// Institution-level analytics — both admin roles may view them.
+// Analytics — requires the "analytics" read permission.
 const router = Router();
 
-router.use(authenticate, authorize("SUPER_ADMIN", "ADMIN"));
+router.use(authenticate);
 
-router.get("/summary", AnalyticsController.getSummary);
+router.get("/summary", authorize("analytics", "read"), AnalyticsController.getSummary);
 
 export default router;

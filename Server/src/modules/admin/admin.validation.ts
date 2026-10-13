@@ -5,7 +5,8 @@ const objectId = z
   .regex(/^[0-9a-fA-F]{24}$/, "Invalid id");
 
 // POST /api/v1/admins
-// `role` is intentionally absent — this endpoint only ever creates ADMIN users.
+// Caller may optionally provide a roleId. When omitted, the service will fall
+// back to the system "ADMIN" role so the behaviour is backward-compatible.
 export const createAdminSchema = z
   .object({
     name: z.string().trim().min(2).max(100),
@@ -16,11 +17,13 @@ export const createAdminSchema = z
       .transform((v) => v.toLowerCase()),
     // Same strength policy as change-password in the auth module.
     temporaryPassword: z.string().min(10).max(128),
+    /** Optional — defaults to the system ADMIN role when not supplied. */
+    roleId: objectId.optional(),
   })
   .strict();
 
 // PATCH /api/v1/admins/:id
-// `email` is the login identity and `role` must never change — not updatable.
+// `email` is the login identity and `roleId` must not change here — not updatable.
 export const updateAdminSchema = z
   .object({
     name: z.string().trim().min(2).max(100).optional(),

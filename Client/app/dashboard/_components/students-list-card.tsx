@@ -30,12 +30,15 @@ export function StudentsListCard({
   isPending,
   isError,
   onEnroll,
+  canEnroll = true,
 }: {
   students: Student[];
   total: number;
   isPending: boolean;
   isError: boolean;
   onEnroll: (student: Student) => void;
+  /** Whether the current user may create enrollments. Hides the Enroll column. */
+  canEnroll?: boolean;
 }) {
   const { departments } = useDepartments();
 
@@ -108,27 +111,31 @@ export function StudentsListCard({
         </Badge>
       ),
     },
-    {
-      id: "actions",
-      header: "Assign",
-      cell: ({ row }) => {
-        const s = row.original;
-        return (
-          <div className="">
-            <Button
-              variant="ghost"
-              size="icon"
-              // className="h-8 w-8"
-              onClick={() => onEnroll(s)}
-              aria-label={`Enroll ${s.fullName} in a course`}
-              title="Enroll in course"
-            >
-              <UserRoundArrowLeft className="h-4 w-4" />
-            </Button>
-          </div>
-        );
-      },
-    },
+    ...(canEnroll
+      ? [
+          {
+            id: "actions",
+            header: "Assign",
+            cell: ({ row }: { row: { original: Student } }) => {
+              const s = row.original;
+              return (
+                <div className="">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    // className="h-8 w-8"
+                    onClick={() => onEnroll(s)}
+                    aria-label={`Enroll ${s.fullName} in a course`}
+                    title="Enroll in course"
+                  >
+                    <UserRoundArrowLeft className="h-4 w-4" />
+                  </Button>
+                </div>
+              );
+            },
+          } satisfies ColumnDef<Student>,
+        ]
+      : []),
   ];
 
   return (
