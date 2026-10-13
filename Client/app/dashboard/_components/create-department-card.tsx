@@ -14,14 +14,20 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
-export function CreateDepartmentCard() {
+export function CreateDepartmentDialog({
+  open,
+  onClose,
+}: {
+  open: boolean;
+  onClose: () => void;
+}) {
   const queryClient = useQueryClient();
 
   const [name, setName] = useState("");
@@ -40,6 +46,7 @@ export function CreateDepartmentCard() {
       setCode("");
       setFormError(null);
       toast.success("Department created");
+      onClose();
     },
     onError: (error) => {
       setFormError(
@@ -68,19 +75,26 @@ export function CreateDepartmentCard() {
     createMutation.mutate();
   };
 
+  const closeAndReset = () => {
+    onClose();
+    setName("");
+    setCode("");
+    setFormError(null);
+  };
+
   return (
-    <Card className="border-border/70 bg-card/95 shadow-sm">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Building2 className="h-5 w-5 text-primary" />
-          Create department
-        </CardTitle>
-        <CardDescription>
-          Departments group students and courses. The code is a short unique
-          identifier and can&apos;t be changed later.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
+    <Dialog open={open} onOpenChange={(o) => !o && closeAndReset()}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Building2 className="h-5 w-5 text-primary" />
+            Create department
+          </DialogTitle>
+          <DialogDescription>
+            Departments group students and courses. The code is a short unique
+            identifier and can&apos;t be changed later.
+          </DialogDescription>
+        </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4" noValidate>
           <div className="space-y-2">
             <Label htmlFor="dept-name">Department name</Label>
@@ -136,7 +150,7 @@ export function CreateDepartmentCard() {
             )}
           </Button>
         </form>
-      </CardContent>
-    </Card>
+      </DialogContent>
+    </Dialog>
   );
 }

@@ -1,13 +1,18 @@
 "use client";
 
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { Plus } from "lucide-react";
 
 import { usersService, USERS_LIST_KEY } from "@/api/users.api";
-import { CreateAdminCard } from "./_components/create-admin-card";
+import { Button } from "@/components/ui/button";
+import { CreateAdminDialog } from "./_components/create-admin-card";
 import { AdminsListCard } from "./_components/admins-list-card";
 import { AdminStatsCards } from "./_components/admin-stats-cards";
 
 export function AdminConsole() {
+  const [creating, setCreating] = useState(false);
+
   const { data, isPending, isError } = useQuery({
     queryKey: [...USERS_LIST_KEY, "ADMIN"],
     queryFn: () => usersService.listUsers({ role: "ADMIN", limit: 50 }),
@@ -28,6 +33,13 @@ export function AdminConsole() {
             Provision and manage administrator credentials and portal access.
           </p>
         </div>
+        <Button
+          onClick={() => setCreating(true)}
+          className="h-11 rounded-xl bg-primary px-5 text-primary-foreground shadow-lg shadow-primary/25 hover:bg-primary/90"
+        >
+          <Plus className="h-4 w-4" />
+          Create admin
+        </Button>
       </section>
 
       <AdminStatsCards
@@ -37,15 +49,14 @@ export function AdminConsole() {
         isPending={isPending}
       />
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <CreateAdminCard />
-        <AdminsListCard
-          admins={admins}
-          total={total}
-          isPending={isPending}
-          isError={isError}
-        />
-      </div>
+      <AdminsListCard
+        admins={admins}
+        total={total}
+        isPending={isPending}
+        isError={isError}
+      />
+
+      <CreateAdminDialog open={creating} onClose={() => setCreating(false)} />
     </div>
   );
 }

@@ -322,7 +322,7 @@ export default function GenericTable<TData, TValue>({
   return (
     <div>
       <div className="flex items-center justify-between">
-        <div className="flex flex-wrap items-center gap-3 py-4">
+        <div className="flex items-center gap-3 py-4">
           {filter && (
             <Input
               className="max-w-sm dark:text-white"

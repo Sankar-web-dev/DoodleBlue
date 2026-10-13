@@ -1,17 +1,21 @@
 "use client";
 
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Layers, CheckCircle2, CircleOff } from "lucide-react";
+import { Layers, CheckCircle2, CircleOff, Plus } from "lucide-react";
 
 import {
   departmentsService,
   DEPARTMENTS_LIST_KEY,
 } from "@/api/departments.api";
+import { Button } from "@/components/ui/button";
 import { ConsoleStatsCards } from "./_components/console-stats-cards";
-import { CreateDepartmentCard } from "./_components/create-department-card";
+import { CreateDepartmentDialog } from "./_components/create-department-card";
 import { DepartmentsCard } from "./_components/departments-card";
 
 export function DepartmentsConsole() {
+  const [creating, setCreating] = useState(false);
+
   const { data, isPending } = useQuery({
     queryKey: [...DEPARTMENTS_LIST_KEY, "stats"],
     queryFn: () => departmentsService.listDepartments({ limit: 100 }),
@@ -38,14 +42,23 @@ export function DepartmentsConsole() {
             Academic faculties, departments, and course allocations.
           </p>
         </div>
+        <Button
+          onClick={() => setCreating(true)}
+          className="h-11 rounded-xl bg-primary px-5 text-primary-foreground shadow-lg shadow-primary/25 hover:bg-primary/90"
+        >
+          <Plus className="h-4 w-4" />
+          Create department
+        </Button>
       </section>
 
       <ConsoleStatsCards stats={stats} isPending={isPending} />
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <CreateDepartmentCard />
-        <DepartmentsCard />
-      </div>
+      <DepartmentsCard />
+
+      <CreateDepartmentDialog
+        open={creating}
+        onClose={() => setCreating(false)}
+      />
     </div>
   );
 }

@@ -20,15 +20,21 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { useDepartments } from "./use-departments";
 
-export function CreateCourseCard() {
+export function CreateCourseDialog({
+  open,
+  onClose,
+}: {
+  open: boolean;
+  onClose: () => void;
+}) {
   const queryClient = useQueryClient();
   const { departments, isPending: deptsPending } = useDepartments();
 
@@ -60,6 +66,7 @@ export function CreateCourseCard() {
       setDescription("");
       setFormError(null);
       toast.success("Course created");
+      onClose();
     },
     onError: (error) => {
       setFormError(
@@ -94,19 +101,27 @@ export function CreateCourseCard() {
     createMutation.mutate();
   };
 
+  const closeAndReset = () => {
+    onClose();
+    setName("");
+    setCode("");
+    setDescription("");
+    setFormError(null);
+  };
+
   return (
-    <Card className="border-border/70 bg-card/95 shadow-sm">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <BookOpen className="h-5 w-5 text-primary" />
-          Create course
-        </CardTitle>
-        <CardDescription>
-          Courses live inside a department. The code is a short unique
-          identifier and can&apos;t be changed later.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
+    <Dialog open={open} onOpenChange={(o) => !o && closeAndReset()}>
+      <DialogContent className="sm:max-w-lg">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <BookOpen className="h-5 w-5 text-primary" />
+            Create course
+          </DialogTitle>
+          <DialogDescription>
+            Courses live inside a department. The code is a short unique
+            identifier and can&apos;t be changed later.
+          </DialogDescription>
+        </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4" noValidate>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-2">
@@ -205,7 +220,7 @@ export function CreateCourseCard() {
             )}
           </Button>
         </form>
-      </CardContent>
-    </Card>
+      </DialogContent>
+    </Dialog>
   );
 }

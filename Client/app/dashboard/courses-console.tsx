@@ -1,17 +1,21 @@
 "use client";
 
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Layers, CheckCircle2, CircleOff } from "lucide-react";
+import { Layers, CheckCircle2, CircleOff, Plus } from "lucide-react";
 
 import {
   coursesService,
   COURSES_LIST_KEY,
 } from "@/api/courses.api";
+import { Button } from "@/components/ui/button";
 import { ConsoleStatsCards } from "./_components/console-stats-cards";
-import { CreateCourseCard } from "./_components/create-course-card";
+import { CreateCourseDialog } from "./_components/create-course-card";
 import { CoursesCard } from "./_components/courses-card";
 
 export function CoursesConsole() {
+  const [creating, setCreating] = useState(false);
+
   const { data, isPending } = useQuery({
     queryKey: [...COURSES_LIST_KEY, "stats"],
     queryFn: () => coursesService.listCourses({ limit: 100 }),
@@ -38,14 +42,20 @@ export function CoursesConsole() {
             Academic curriculum, department course allocations, and course states.
           </p>
         </div>
+        <Button
+          onClick={() => setCreating(true)}
+          className="h-11 rounded-xl bg-primary px-5 text-primary-foreground shadow-lg shadow-primary/25 hover:bg-primary/90"
+        >
+          <Plus className="h-4 w-4" />
+          Create course
+        </Button>
       </section>
 
       <ConsoleStatsCards stats={stats} isPending={isPending} />
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <CreateCourseCard />
-        <CoursesCard />
-      </div>
+      <CoursesCard />
+
+      <CreateCourseDialog open={creating} onClose={() => setCreating(false)} />
     </div>
   );
 }

@@ -21,15 +21,21 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { generatePassword } from "./console-utils";
 
-export function CreateAdminCard() {
+export function CreateAdminDialog({
+  open,
+  onClose,
+}: {
+  open: boolean;
+  onClose: () => void;
+}) {
   const queryClient = useQueryClient();
 
   const [name, setName] = useState("");
@@ -99,19 +105,29 @@ export function CreateAdminCard() {
     toast.success("Credentials copied");
   };
 
+  const closeAndReset = () => {
+    onClose();
+    setName("");
+    setEmail("");
+    setPassword("");
+    setShowPassword(false);
+    setFormError(null);
+    setCreated(null);
+  };
+
   return (
-    <Card className="border-border/70 bg-card/95 shadow-sm">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <UserPlus className="h-5 w-5 text-primary" />
-          Create admin
-        </CardTitle>
-        <CardDescription>
-          Admins manage students and enrollment. Share the credentials with
-          them — they can sign in right away.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
+    <Dialog open={open} onOpenChange={(o) => !o && closeAndReset()}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <UserPlus className="h-5 w-5 text-primary" />
+            Create admin
+          </DialogTitle>
+          <DialogDescription>
+            Admins manage students and enrollment. Share the credentials with
+            them — they can sign in right away.
+          </DialogDescription>
+        </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4" noValidate>
           <div className="space-y-2">
             <Label htmlFor="admin-name">Full name</Label>
@@ -229,7 +245,7 @@ export function CreateAdminCard() {
             </Button>
           </div>
         )}
-      </CardContent>
-    </Card>
+      </DialogContent>
+    </Dialog>
   );
 }
