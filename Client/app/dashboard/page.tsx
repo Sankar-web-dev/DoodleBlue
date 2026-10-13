@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -10,6 +10,7 @@ import {
   Crown,
   UserCog,
   BookOpen,
+  KeyRound,
 } from "lucide-react";
 
 import { authService, AUTH_ME_KEY, ROLE_LABELS, UserRole } from "@/api/auth.api";
@@ -19,6 +20,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { LogoutButton } from "@/components/ui/logout-button";
+import { ChangePasswordDialog } from "./_components/change-password-dialog";
 import { ConsoleShell } from "./console-shell";
 
 const ROLE_STYLES: Record<UserRole, { badge: string; icon: typeof Crown; label: string }> = {
@@ -29,6 +31,7 @@ const ROLE_STYLES: Record<UserRole, { badge: string; icon: typeof Crown; label: 
 
 export default function DashboardPage() {
   const router = useRouter();
+  const [changingPassword, setChangingPassword] = useState(false);
 
   const { data, error, isPending, refetch } = useQuery({
     queryKey: AUTH_ME_KEY,
@@ -100,10 +103,23 @@ export default function DashboardPage() {
               <RoleIcon className="h-3.5 w-3.5" />
               {ROLE_LABELS[user.role]}
             </Badge>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setChangingPassword(true)}
+            >
+              <KeyRound className="h-4 w-4" />
+              Change password
+            </Button>
             <LogoutButton showIcon className="w-auto" variant="outline" size="sm" />
           </div>
         </div>
       </header>
+
+      <ChangePasswordDialog
+        open={changingPassword}
+        onClose={() => setChangingPassword(false)}
+      />
 
       <main className="flex min-h-[calc(100vh-8rem)] flex-1 flex-col gap-4 p-4 md:gap-8 md:px-5 md:py-2">
         <section className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">

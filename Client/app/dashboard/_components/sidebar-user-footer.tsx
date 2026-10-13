@@ -1,16 +1,20 @@
 "use client";
 
-import { Crown, UserCog } from "lucide-react";
+import { useState } from "react";
+import { Crown, UserCog, KeyRound } from "lucide-react";
 
 import { AuthUser, ROLE_LABELS } from "@/api/auth.api";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { LogoutButton } from "@/components/ui/logout-button";
 import { SidebarFooter } from "@/components/ui/sidebar";
 import { initials } from "./console-utils";
+import { ChangePasswordDialog } from "./change-password-dialog";
 
 export function SidebarUserFooter({ user }: { user: AuthUser }) {
   const isSuper = user.role === "SUPER_ADMIN";
   const RoleIcon = isSuper ? Crown : UserCog;
+  const [changingPassword, setChangingPassword] = useState(false);
 
   return (
     <SidebarFooter className="mt-auto border-t border-sidebar-border px-4 py-4 group-data-[collapsible=icon]:p-2">
@@ -41,6 +45,18 @@ export function SidebarUserFooter({ user }: { user: AuthUser }) {
             {ROLE_LABELS[user.role]}
           </span>
         </Badge>
+        <Button
+          title="Change password"
+          className="w-full justify-start group-data-[collapsible=icon]:h-8 group-data-[collapsible=icon]:w-8 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-0"
+          variant="outline"
+          size="sm"
+          onClick={() => setChangingPassword(true)}
+        >
+          <KeyRound className="h-4 w-4 group-data-[collapsible=icon]:mr-0 mr-2" />
+          <span className="group-data-[collapsible=icon]:hidden">
+            Change password
+          </span>
+        </Button>
         <LogoutButton
           showIcon
           title="Log out"
@@ -49,6 +65,10 @@ export function SidebarUserFooter({ user }: { user: AuthUser }) {
           size="sm"
         />
       </div>
+      <ChangePasswordDialog
+        open={changingPassword}
+        onClose={() => setChangingPassword(false)}
+      />
     </SidebarFooter>
   );
 }
