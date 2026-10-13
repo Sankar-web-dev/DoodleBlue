@@ -35,6 +35,13 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import { useDepartments } from "../_hooks/use-departments";
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { useDepartments } from "./use-departments";
 import { generatePassword } from "./console-utils";
 
 function suggestStudentNumber(): string {
@@ -43,7 +50,13 @@ function suggestStudentNumber(): string {
   return `STU-${year}-${seq}`;
 }
 
-export function CreateStudentCard() {
+export function CreateStudentDialog({
+  open,
+  onClose,
+}: {
+  open: boolean;
+  onClose: () => void;
+}) {
   const queryClient = useQueryClient();
   const { departments, isPending: deptsPending } = useDepartments();
 
@@ -144,19 +157,32 @@ export function CreateStudentCard() {
     toast.success("Credentials copied");
   };
 
+  const closeAndReset = () => {
+    onClose();
+    setFullName("");
+    setEmail("");
+    setStudentNumber("");
+    setDepartmentId("");
+    setPhone("");
+    setPassword("");
+    setShowPassword(false);
+    setFormError(null);
+    setCreated(null);
+  };
+
   return (
-    <Card className="border-border/70 bg-card/95 shadow-sm">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <GraduationCap className="h-5 w-5 text-primary" />
-          Enroll student
-        </CardTitle>
-        <CardDescription>
-          Creates the student profile and their sign-in account. Share the
-          credentials — they can log in right away.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
+    <Dialog open={open} onOpenChange={(o) => !o && closeAndReset()}>
+      <DialogContent className="sm:max-w-lg">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <GraduationCap className="h-5 w-5 text-primary" />
+            Enroll student
+          </DialogTitle>
+          <DialogDescription>
+            Creates the student profile and their sign-in account. Share the
+            credentials — they can log in right away.
+          </DialogDescription>
+        </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4" noValidate>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-2">
@@ -349,7 +375,7 @@ export function CreateStudentCard() {
             </Button>
           </div>
         )}
-      </CardContent>
-    </Card>
+      </DialogContent>
+    </Dialog>
   );
 }
